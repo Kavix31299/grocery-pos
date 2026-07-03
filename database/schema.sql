@@ -211,7 +211,7 @@ CREATE TABLE payments (
     CONSTRAINT fk_payments_received_by
         FOREIGN KEY (received_by) REFERENCES users (user_id) ON UPDATE CASCADE ON DELETE RESTRICT,
     CONSTRAINT chk_payments_method
-        CHECK (payment_method IN ('Cash', 'Card', 'Bank Transfer', 'Mobile Wallet', 'Other')),
+        CHECK (payment_method IN ('Cash', 'Card', 'Bank Transfer', 'QR Payment', 'Split Payment')),
     CONSTRAINT chk_payments_amount CHECK (amount > 0),
     CONSTRAINT chk_payments_status
         CHECK (payment_status IN ('Pending', 'Completed', 'Failed', 'Refunded'))
@@ -310,7 +310,7 @@ CREATE TABLE store_settings (
     address TEXT,
     phone VARCHAR(30),
     email VARCHAR(150),
-    currency_code CHAR(3) NOT NULL DEFAULT 'USD',
+    currency_code CHAR(3) NOT NULL DEFAULT 'LKR',
     tax_rate NUMERIC(5, 2) NOT NULL DEFAULT 0,
     receipt_footer TEXT,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
