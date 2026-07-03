@@ -12,11 +12,18 @@ const ROLE_ACCESS = Object.freeze({
     'suppliers:manage',
     'customers:manage',
     'purchases:manage',
+    'sales:manage',
+    'returns:manage',
+    'expenses:manage',
     'reports:view'
   ],
   [ROLES.CASHIER]: [
     'pos:billing',
-    'sales:own'
+    'products:view',
+    'categories:view',
+    'customers:manage',
+    'sales:manage',
+    'returns:manage'
   ]
 });
 

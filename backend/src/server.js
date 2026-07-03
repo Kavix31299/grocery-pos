@@ -4,6 +4,17 @@ const express = require('express');
 const cors = require('cors');
 const { pool } = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
+const usersRoutes = require('./routes/usersRoutes');
+const categoriesRoutes = require('./routes/categoriesRoutes');
+const productsRoutes = require('./routes/productsRoutes');
+const suppliersRoutes = require('./routes/suppliersRoutes');
+const customersRoutes = require('./routes/customersRoutes');
+const purchasesRoutes = require('./routes/purchasesRoutes');
+const salesRoutes = require('./routes/salesRoutes');
+const returnsRoutes = require('./routes/returnsRoutes');
+const expensesRoutes = require('./routes/expensesRoutes');
+const reportsRoutes = require('./routes/reportsRoutes');
+const storeSettingsRoutes = require('./routes/storeSettingsRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -16,6 +27,17 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use('/api/auth', authRoutes);
+app.use('/api/users', usersRoutes);
+app.use('/api/categories', categoriesRoutes);
+app.use('/api/products', productsRoutes);
+app.use('/api/suppliers', suppliersRoutes);
+app.use('/api/customers', customersRoutes);
+app.use('/api/purchases', purchasesRoutes);
+app.use('/api/sales', salesRoutes);
+app.use('/api/returns', returnsRoutes);
+app.use('/api/expenses', expensesRoutes);
+app.use('/api/reports', reportsRoutes);
+app.use('/api/store-settings', storeSettingsRoutes);
 
 app.get('/', (req, res) => {
   res.json({
@@ -56,7 +78,8 @@ app.use((error, req, res, next) => {
   console.error(error);
 
   res.status(error.status || 500).json({
-    message: error.message || 'Internal server error'
+    message: error.message || 'Internal server error',
+    ...(error.details ? { details: error.details } : {})
   });
 });
 
