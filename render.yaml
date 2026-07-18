@@ -4,7 +4,9 @@ services:
     runtime: node
     plan: free
     region: singapore
-    buildCommand: npm --prefix backend ci && npm --prefix frontend ci && npm --prefix frontend run build
+    branch: main
+    rootDir: .
+    buildCommand: npm --prefix backend ci && npm --prefix frontend ci --include=dev && npm --prefix frontend run build
     startCommand: npm --prefix backend run start:render
     healthCheckPath: /health/db
     autoDeployTrigger: commit
