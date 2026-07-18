@@ -9,6 +9,7 @@ const {
   normalizeOptionalString,
   parseNonNegativeNumber,
   parsePositiveInteger,
+  parsePositiveNumber,
   requireFields,
   sendItem,
   sendList,
@@ -180,7 +181,7 @@ const normalizeReturnItems = async (client, saleId, rawItems) => {
     const productId = saleItem
       ? Number(saleItem.product_id)
       : parsePositiveInteger(item.productId, `items[${index}].productId`);
-    const quantity = parsePositiveInteger(item.quantity, `items[${index}].quantity`);
+    const quantity = parsePositiveNumber(item.quantity, `items[${index}].quantity`);
     const unitRefundAmount = item.unitRefundAmount === undefined
       ? Number(saleItem ? saleItem.unit_price : 0)
       : parseNonNegativeNumber(item.unitRefundAmount, `items[${index}].unitRefundAmount`);

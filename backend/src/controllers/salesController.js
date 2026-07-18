@@ -87,7 +87,24 @@ const findInvoiceBySaleId = async (saleId) => {
   }
 
   const settingsResult = await query(
-    'SELECT store_name, address, phone, email, currency_code, tax_rate, receipt_footer FROM store_settings WHERE setting_id = 1'
+    `
+      SELECT
+        store_name,
+        address,
+        phone,
+        email,
+        currency_code,
+        tax_rate,
+        receipt_footer,
+        printer_enabled,
+        printer_host,
+        printer_port,
+        printer_device_id,
+        printer_use_ssl,
+        printer_buffer
+      FROM store_settings
+      WHERE setting_id = 1
+    `
   );
   const stockMovementsResult = await query(
     `
@@ -269,7 +286,7 @@ const normalizeSaleItems = async (client, rawItems, reduceStock) => {
       throw createHttpError(400, `Product ${product.product_name} is inactive and cannot be sold`);
     }
 
-    const quantity = parsePositiveInteger(item.quantity, `items[${index}].quantity`);
+    const quantity = parsePositiveNumber(item.quantity, `items[${index}].quantity`);
 
     if (reduceStock && Number(product.current_stock) < quantity) {
       throw createHttpError(400, `Insufficient stock for ${product.product_name}`);
@@ -364,6 +381,25 @@ const createSale = async (req, res, next) => {
       const cashierId = req.body.cashierId
         ? parsePositiveInteger(req.body.cashierId, 'cashierId')
         : req.user.id;
+      const customerId = req.body.customerId
+        ? parsePositiveInteger(req.body.customerId, 'customerId')
+        : null;
+
+      if (customerId) {
+        const customerResult = await client.query(
+          'SELECT customer_id, is_active FROM customers WHERE customer_id = $1',
+          [customerId]
+        );
+
+        if (!customerResult.rows[0]) {
+          throw createHttpError(400, 'Customer does not exist');
+        }
+
+        if (!customerResult.rows[0].is_active) {
+          throw createHttpError(400, 'Inactive customers cannot receive credit');
+        }
+      }
+
       const items = await normalizeSaleItems(client, req.body.items, shouldReduceStock);
       const itemSubtotal = items.reduce((total, item) => total + (item.quantity * item.unitPrice), 0);
       const itemDiscount = items.reduce((total, item) => total + item.discountAmount, 0);
@@ -392,15 +428,12 @@ const createSale = async (req, res, next) => {
         ? (saleStatus === 'Completed' ? totalAmount : 0)
         : parseNonNegativeNumber(rawPaidAmount, 'paidAmount');
 
-      if (saleStatus === 'Completed' && totalAmount > 0 && paidAmount <= 0) {
-        throw createHttpError(400, 'A completed sale requires a payment amount greater than 0');
-      }
+      const balanceAmount = Math.max(totalAmount - paidAmount, 0);
+      const paymentStatus = derivePaymentStatus(totalAmount, paidAmount);
 
-      const balanceAmount = req.body.balanceAmount === undefined
-        ? Math.max(totalAmount - paidAmount, 0)
-        : parseNonNegativeNumber(req.body.balanceAmount, 'balanceAmount');
-      const paymentStatus = req.body.paymentStatus || derivePaymentStatus(totalAmount, paidAmount);
-      ensureAllowedValue(paymentStatus, PAYMENT_STATUSES, 'paymentStatus');
+      if (saleStatus === 'Completed' && balanceAmount > 0 && !customerId) {
+        throw createHttpError(400, 'Select an active customer before placing a sale on credit');
+      }
 
       const saleResult = await client.query(
         `
@@ -424,7 +457,7 @@ const createSale = async (req, res, next) => {
         `,
         [
           normalizeOptionalString(req.body.invoiceNumber) || generateReferenceNumber('INV'),
-          req.body.customerId ? parsePositiveInteger(req.body.customerId, 'customerId') : null,
+          customerId,
           cashierId,
           req.body.saleDate || null,
           subtotalAmount,
@@ -557,6 +590,98 @@ const createSale = async (req, res, next) => {
   }
 };
 
+const addSalePayment = async (req, res, next) => {
+  try {
+    requireFields(req.body, ['paymentMethod', 'amount']);
+    ensureAllowedValue(req.body.paymentMethod, PAYMENT_METHODS.filter((method) => method !== 'Split Payment'), 'paymentMethod');
+    const saleId = parsePositiveInteger(req.params.id, 'saleId');
+    const amount = parsePositiveNumber(req.body.amount, 'amount');
+
+    await withTransaction(async (client) => {
+      const saleResult = await client.query(
+        `
+          SELECT sale_id, customer_id, total_amount, paid_amount, balance_amount, payment_status, sale_status
+          FROM sales
+          WHERE sale_id = $1
+          FOR UPDATE
+        `,
+        [saleId]
+      );
+      const sale = saleResult.rows[0];
+
+      if (!sale) {
+        throw createHttpError(404, 'Sale not found');
+      }
+
+      if (sale.sale_status !== 'Completed') {
+        throw createHttpError(400, 'Payments can only be recorded for completed sales');
+      }
+
+      if (!sale.customer_id) {
+        throw createHttpError(400, 'This sale is not assigned to a customer');
+      }
+
+      const currentBalance = Number(sale.balance_amount);
+
+      if (currentBalance <= 0 || sale.payment_status === 'Paid') {
+        throw createHttpError(400, 'This sale has no outstanding balance');
+      }
+
+      if (amount > currentBalance) {
+        throw createHttpError(400, `Payment cannot exceed the outstanding balance of ${currentBalance.toFixed(2)}`);
+      }
+
+      const paidAmount = Number(sale.paid_amount) + amount;
+      const balanceAmount = Math.max(Number(sale.total_amount) - paidAmount, 0);
+      const paymentStatus = derivePaymentStatus(Number(sale.total_amount), paidAmount);
+
+      await client.query(
+        `
+          INSERT INTO payments (
+            sale_id,
+            received_by,
+            payment_method,
+            amount,
+            payment_status,
+            transaction_reference
+          )
+          VALUES ($1, $2, $3, $4, 'Completed', $5)
+        `,
+        [
+          saleId,
+          req.user.id,
+          req.body.paymentMethod,
+          amount,
+          normalizeOptionalString(req.body.transactionReference)
+        ]
+      );
+
+      await client.query(
+        `
+          UPDATE sales
+          SET paid_amount = $1,
+              balance_amount = $2,
+              payment_status = $3
+          WHERE sale_id = $4
+        `,
+        [paidAmount, balanceAmount, paymentStatus, saleId]
+      );
+    });
+
+    const sale = await findSaleById(saleId);
+    const invoice = await findInvoiceBySaleId(saleId);
+
+    return res.json({
+      sale: toCamelCase(sale),
+      invoice: toCamelCase(invoice)
+    });
+  } catch (error) {
+    return next(mapDatabaseError(error, {
+      foreignKey: 'Sale, payment receiver, or customer does not exist'
+    }));
+  }
+};
+
 const cancelSale = async (req, res, next) => {
   try {
     const saleId = parsePositiveInteger(req.params.id, 'saleId');
@@ -646,6 +771,7 @@ const cancelSale = async (req, res, next) => {
 };
 
 module.exports = {
+  addSalePayment,
   cancelSale,
   createSale,
   getSaleInvoice,

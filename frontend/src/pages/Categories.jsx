@@ -15,6 +15,7 @@ const Categories = () => (
       { name: 'description', label: 'Description', type: 'textarea', fullWidth: true }
     ]}
     columns={[
+      { key: 'categoryId', label: 'ID' },
       { key: 'categoryName', label: 'Category' },
       { key: 'description', label: 'Description' },
       {

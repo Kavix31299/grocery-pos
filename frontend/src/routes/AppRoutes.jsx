@@ -44,6 +44,9 @@ const AppRoutes = () => (
       <Route element={<DashboardLayout />}>
         <Route path="/pos" element={<CashierPOS />} />
         <Route path="/customers" element={<Customers />} />
+        <Route path="/products" element={<Products />} />
+        <Route path="/categories" element={<Categories />} />
+        <Route path="/suppliers" element={<Suppliers />} />
         <Route path="/returns" element={<Returns />} />
         <Route path="/sales" element={<Sales />} />
       </Route>
@@ -60,9 +63,6 @@ const AppRoutes = () => (
     <Route element={<ProtectedRoute roles={['Admin', 'Manager']} />}>
       <Route element={<DashboardLayout />}>
         <Route path="/manager/dashboard" element={<ManagerDashboard />} />
-        <Route path="/products" element={<Products />} />
-        <Route path="/categories" element={<Categories />} />
-        <Route path="/suppliers" element={<Suppliers />} />
         <Route path="/purchases" element={<Purchases />} />
         <Route path="/expenses" element={<Expenses />} />
         <Route path="/reports" element={<Reports />} />

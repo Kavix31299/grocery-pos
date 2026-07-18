@@ -20,5 +20,6 @@ router.get('/expiring-products', reportsController.getExpiringProductsReport);
 router.get('/profit', reportsController.getProfitReport);
 router.get('/expenses', reportsController.getExpenseReport);
 router.get('/supplier-dues', reportsController.getSupplierDueReport);
+router.get('/customer-credit', reportsController.getCustomerCreditReport);
 
 module.exports = router;

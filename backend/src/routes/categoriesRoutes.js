@@ -10,7 +10,7 @@ router.use(verifyAuthToken);
 router.get('/', checkUserRole(ROLES.MANAGER, ROLES.CASHIER), categoriesController.listCategories);
 router.get('/:id', checkUserRole(ROLES.MANAGER, ROLES.CASHIER), categoriesController.getCategory);
 router.post('/', checkUserRole(ROLES.MANAGER), categoriesController.createCategory);
-router.patch('/:id', checkUserRole(ROLES.MANAGER), categoriesController.updateCategory);
+router.patch('/:id', checkUserRole(ROLES.MANAGER, ROLES.CASHIER), categoriesController.updateCategory);
 router.delete('/:id', checkUserRole(ROLES.MANAGER), categoriesController.deleteCategory);
 
 module.exports = router;

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import DataTable from '../components/DataTable.jsx';
 import PageHeader from '../components/PageHeader.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
 import {
   createResource,
   deleteResource,
@@ -58,9 +59,13 @@ const ManagementPage = ({
   fields,
   columns,
   allowDelete = true,
+  createRoles = ['Admin', 'Manager'],
   deleteLabel = 'Delete',
+  renderRowActions,
   searchPlaceholder = 'Search'
 }) => {
+  const { user } = useAuth();
+  const canCreate = createRoles.includes(user?.role);
   const [rows, setRows] = useState([]);
   const [search, setSearch] = useState('');
   const [form, setForm] = useState(() => getDefaultForm(fields));
@@ -206,10 +211,11 @@ const ManagementPage = ({
       label: 'Actions',
       render: (row) => (
         <div className="table-actions">
+          {renderRowActions ? renderRowActions(row) : null}
           <button className="ghost-button" onClick={() => startEdit(row)} type="button">
             Edit
           </button>
-          {allowDelete ? (
+          {allowDelete && ['Admin', 'Manager'].includes(user?.role) ? (
             <button className="ghost-button danger-button" onClick={() => handleDelete(row)} type="button">
               {deleteLabel}
             </button>
@@ -236,7 +242,8 @@ const ManagementPage = ({
         )}
       />
       <div className="management-grid">
-        <form className="panel management-form" onSubmit={handleSubmit}>
+        {editingRow || canCreate ? (
+          <form className="panel management-form" onSubmit={handleSubmit}>
           <div className="panel-heading">
             <h2>{editingRow ? `Edit ${title}` : `Add ${title}`}</h2>
             {editingRow ? (
@@ -295,7 +302,13 @@ const ManagementPage = ({
               {saving ? 'Saving...' : editingRow ? 'Save changes' : `Add ${title}`}
             </button>
           </div>
-        </form>
+          </form>
+        ) : (
+          <section className="panel management-form">
+            <h2>Edit {title}</h2>
+            <p className="muted">Select Edit beside a record to update it.</p>
+          </section>
+        )}
         <section className="panel management-table">
           {loading ? (
             <p className="muted">Loading records...</p>

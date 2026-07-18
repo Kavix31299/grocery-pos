@@ -1,5 +1,4 @@
 DROP VIEW IF EXISTS
-    customer_credit_report,
     supplier_due_report,
     expense_report,
     profit_report,
@@ -16,6 +15,26 @@ DROP VIEW IF EXISTS
     purchase_summary_report,
     product_stock_report
 CASCADE;
+
+ALTER TABLE products
+ALTER COLUMN current_stock TYPE NUMERIC(12, 3) USING current_stock::NUMERIC(12, 3),
+ALTER COLUMN current_stock SET DEFAULT 0,
+ALTER COLUMN reorder_level TYPE NUMERIC(12, 3) USING reorder_level::NUMERIC(12, 3),
+ALTER COLUMN reorder_level SET DEFAULT 0;
+
+ALTER TABLE sale_items
+ALTER COLUMN quantity TYPE NUMERIC(12, 3) USING quantity::NUMERIC(12, 3);
+
+ALTER TABLE purchase_items
+ALTER COLUMN quantity TYPE NUMERIC(12, 3) USING quantity::NUMERIC(12, 3);
+
+ALTER TABLE return_items
+ALTER COLUMN quantity TYPE NUMERIC(12, 3) USING quantity::NUMERIC(12, 3);
+
+ALTER TABLE stock_movements
+ALTER COLUMN quantity_changed TYPE NUMERIC(12, 3) USING quantity_changed::NUMERIC(12, 3),
+ALTER COLUMN previous_stock TYPE NUMERIC(12, 3) USING previous_stock::NUMERIC(12, 3),
+ALTER COLUMN new_stock TYPE NUMERIC(12, 3) USING new_stock::NUMERIC(12, 3);
 
 CREATE VIEW daily_sales_report AS
 WITH sale_quantities AS (
@@ -358,21 +377,3 @@ JOIN purchases pu ON pu.supplier_id = sup.supplier_id
 WHERE pu.purchase_status <> 'Cancelled'
   AND pu.balance_amount > 0
 GROUP BY sup.supplier_id, sup.supplier_name, sup.contact_person, sup.phone, sup.email;
-
-CREATE VIEW customer_credit_report AS
-SELECT
-    c.customer_id,
-    c.customer_name,
-    c.phone,
-    c.email,
-    COUNT(s.sale_id) AS credit_sale_count,
-    COALESCE(SUM(s.total_amount), 0) AS total_credit_sales_amount,
-    COALESCE(SUM(s.paid_amount), 0) AS amount_paid,
-    COALESCE(SUM(s.balance_amount), 0) AS credit_balance,
-    MIN(s.sale_date) AS oldest_credit_at,
-    MAX(s.sale_date) AS latest_credit_at
-FROM customers c
-JOIN sales s ON s.customer_id = c.customer_id
-WHERE s.sale_status = 'Completed'
-  AND s.balance_amount > 0
-GROUP BY c.customer_id, c.customer_name, c.phone, c.email;

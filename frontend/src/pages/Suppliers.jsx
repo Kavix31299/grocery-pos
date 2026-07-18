@@ -18,6 +18,7 @@ const Suppliers = () => (
       { name: 'address', label: 'Address', type: 'textarea', fullWidth: true }
     ]}
     columns={[
+      { key: 'supplierId', label: 'ID' },
       { key: 'supplierName', label: 'Supplier' },
       { key: 'contactPerson', label: 'Contact' },
       { key: 'phone', label: 'Phone' },

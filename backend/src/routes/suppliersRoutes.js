@@ -6,15 +6,14 @@ const { ROLES } = require('../utils/roles');
 const router = express.Router();
 
 router.use(verifyAuthToken);
-router.use(checkUserRole(ROLES.MANAGER));
 
 router.route('/')
-  .get(suppliersController.listSuppliers)
-  .post(suppliersController.createSupplier);
+  .get(checkUserRole(ROLES.MANAGER, ROLES.CASHIER), suppliersController.listSuppliers)
+  .post(checkUserRole(ROLES.MANAGER), suppliersController.createSupplier);
 
 router.route('/:id')
-  .get(suppliersController.getSupplier)
-  .patch(suppliersController.updateSupplier)
-  .delete(suppliersController.deleteSupplier);
+  .get(checkUserRole(ROLES.MANAGER, ROLES.CASHIER), suppliersController.getSupplier)
+  .patch(checkUserRole(ROLES.MANAGER, ROLES.CASHIER), suppliersController.updateSupplier)
+  .delete(checkUserRole(ROLES.MANAGER), suppliersController.deleteSupplier);
 
 module.exports = router;

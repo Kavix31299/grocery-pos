@@ -228,6 +228,25 @@ export const reportConfigs = {
       currency('dueAmount'),
       dateTime('latestPurchaseAt', 'Latest purchase')
     ]
+  },
+  customerCredit: {
+    key: 'customerCredit',
+    slug: 'customer-credit',
+    label: 'Customer credit',
+    endpoint: '/reports/customer-credit',
+    description: 'Outstanding customer balances, paid amounts, and oldest credit dates.',
+    supportsDateFilter: false,
+    supportsSearch: true,
+    columns: [
+      number('customerId', 'ID'),
+      number('customerName', 'Customer'),
+      number('phone', 'Phone'),
+      number('creditSaleCount', 'Credit sales'),
+      currency('totalCreditSalesAmount'),
+      currency('amountPaid'),
+      currency('creditBalance'),
+      dateTime('oldestCreditAt', 'Oldest credit')
+    ]
   }
 };
 

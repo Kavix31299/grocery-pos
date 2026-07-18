@@ -15,17 +15,17 @@ export const navigationItems = [
   {
     label: 'Products',
     path: '/products',
-    roles: ['Admin', 'Manager']
+    roles: ['Admin', 'Manager', 'Cashier']
   },
   {
     label: 'Categories',
     path: '/categories',
-    roles: ['Admin', 'Manager']
+    roles: ['Admin', 'Manager', 'Cashier']
   },
   {
     label: 'Suppliers',
     path: '/suppliers',
-    roles: ['Admin', 'Manager']
+    roles: ['Admin', 'Manager', 'Cashier']
   },
   {
     label: 'Customers',

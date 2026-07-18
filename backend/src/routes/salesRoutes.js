@@ -13,6 +13,7 @@ router.route('/')
   .post(salesController.createSale);
 
 router.get('/:id/invoice', salesController.getSaleInvoice);
+router.post('/:id/payments', salesController.addSalePayment);
 router.get('/:id', salesController.getSale);
 router.patch('/:id/cancel', salesController.cancelSale);
 

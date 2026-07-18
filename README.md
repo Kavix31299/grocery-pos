@@ -44,6 +44,30 @@ If you already created the database before the payment-method update, run the mi
 psql -U postgres -d grocery_pos -f database/migrations/001_update_payment_methods.sql
 ```
 
+If you already created the database before decimal inventory quantities were added, run:
+
+```powershell
+psql -U postgres -d grocery_pos -f database/migrations/002_decimal_quantities.sql
+```
+
+If you already created the database before wholesale prices were added, run:
+
+```powershell
+psql -U postgres -d grocery_pos -f database/migrations/003_add_wholesale_price.sql
+```
+
+If you already created the database before retail prices were added, run:
+
+```powershell
+psql -U postgres -d grocery_pos -f database/migrations/004_add_retail_price.sql
+```
+
+If you already created the database before Epson printer settings were added, run:
+
+```powershell
+psql -U postgres -d grocery_pos -f database/migrations/005_add_printer_settings.sql
+```
+
 ## Docker Setup
 
 Docker can run PostgreSQL, the backend API, and the frontend together.
@@ -87,6 +111,19 @@ POSTGRES_DB=grocery_pos
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
 ```
+
+## Epson Receipt Printer
+
+The POS can print receipts through Epson ePOS SDK for JavaScript.
+
+In `Store Settings`, set:
+
+- Epson receipt printer: enabled
+- Host / IP: your Epson printer IP address
+- Port: `8008` for normal ePOS, or `8043` if using SSL
+- Device ID: `local_printer`
+
+The Epson SDK file is served from `frontend/public/epson/epos-2.27.0.js`.
 
 Stop containers:
 
@@ -229,9 +266,7 @@ The seed file creates:
 - Roles: Admin, Manager, Cashier
 - Store settings
 - Admin, Manager, and Cashier users
-- Categories
-- Suppliers
-- Products with stock
+- No sample categories, suppliers, or products
 - Customers
 
 The seed is written with `ON CONFLICT` clauses so it can be rerun during local development.

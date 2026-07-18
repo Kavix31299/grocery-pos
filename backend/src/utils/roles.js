@@ -19,9 +19,10 @@ const ROLE_ACCESS = Object.freeze({
   ],
   [ROLES.CASHIER]: [
     'pos:billing',
-    'products:view',
-    'categories:view',
-    'customers:manage',
+    'products:edit',
+    'categories:edit',
+    'suppliers:edit',
+    'customers:edit',
     'sales:manage',
     'returns:manage'
   ]

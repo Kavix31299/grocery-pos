@@ -9,6 +9,7 @@ const {
   normalizeOptionalString,
   parseNonNegativeNumber,
   parsePositiveInteger,
+  parsePositiveNumber,
   requireFields,
   sendItem,
   sendList,
@@ -151,7 +152,7 @@ const normalizePurchaseItems = async (client, rawItems) => {
       throw createHttpError(400, `Product ${productId} does not exist`);
     }
 
-    const quantity = parsePositiveInteger(item.quantity, `items[${index}].quantity`);
+    const quantity = parsePositiveNumber(item.quantity, `items[${index}].quantity`);
     const unitCost = item.unitCost === undefined
       ? Number(product.cost_price)
       : parseNonNegativeNumber(item.unitCost, `items[${index}].unitCost`);

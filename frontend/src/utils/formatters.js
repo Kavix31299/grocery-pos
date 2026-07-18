@@ -6,6 +6,10 @@ export const formatCurrency = (value, currency = DEFAULT_CURRENCY) => new Intl.N
   currency
 }).format(Number(value || 0));
 
+export const formatQuantity = (value) => new Intl.NumberFormat(DEFAULT_LOCALE, {
+  maximumFractionDigits: 3
+}).format(Number(value || 0));
+
 export const formatDate = (value) => {
   if (!value) {
     return 'Not set';

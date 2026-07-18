@@ -7,7 +7,6 @@ const {
   mapDatabaseError,
   normalizeOptionalString,
   parseBoolean,
-  parseNonNegativeInteger,
   parseNonNegativeNumber,
   parsePositiveInteger,
   requireFields,
@@ -135,11 +134,13 @@ const createProduct = async (req, res, next) => {
           unit,
           cost_price,
           selling_price,
+          retail_price,
+          wholesale_price,
           current_stock,
           reorder_level,
           is_active
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
         RETURNING product_id
       `,
       [
@@ -152,8 +153,10 @@ const createProduct = async (req, res, next) => {
         normalizeOptionalString(req.body.unit) || 'pcs',
         req.body.costPrice === undefined ? 0 : parseNonNegativeNumber(req.body.costPrice, 'costPrice'),
         req.body.sellingPrice === undefined ? 0 : parseNonNegativeNumber(req.body.sellingPrice, 'sellingPrice'),
-        req.body.currentStock === undefined ? 0 : parseNonNegativeInteger(req.body.currentStock, 'currentStock'),
-        req.body.reorderLevel === undefined ? 0 : parseNonNegativeInteger(req.body.reorderLevel, 'reorderLevel'),
+        req.body.retailPrice === undefined ? 0 : parseNonNegativeNumber(req.body.retailPrice, 'retailPrice'),
+        req.body.wholesalePrice === undefined ? 0 : parseNonNegativeNumber(req.body.wholesalePrice, 'wholesalePrice'),
+        req.body.currentStock === undefined ? 0 : parseNonNegativeNumber(req.body.currentStock, 'currentStock'),
+        req.body.reorderLevel === undefined ? 0 : parseNonNegativeNumber(req.body.reorderLevel, 'reorderLevel'),
         req.body.isActive === undefined ? true : parseBoolean(req.body.isActive, 'isActive')
       ]
     );
@@ -185,8 +188,10 @@ const updateProduct = async (req, res, next) => {
         { prop: 'unit', column: 'unit', transform: normalizeOptionalString },
         { prop: 'costPrice', column: 'cost_price', transform: (value) => parseNonNegativeNumber(value, 'costPrice') },
         { prop: 'sellingPrice', column: 'selling_price', transform: (value) => parseNonNegativeNumber(value, 'sellingPrice') },
-        { prop: 'currentStock', column: 'current_stock', transform: (value) => parseNonNegativeInteger(value, 'currentStock') },
-        { prop: 'reorderLevel', column: 'reorder_level', transform: (value) => parseNonNegativeInteger(value, 'reorderLevel') },
+        { prop: 'retailPrice', column: 'retail_price', transform: (value) => parseNonNegativeNumber(value, 'retailPrice') },
+        { prop: 'wholesalePrice', column: 'wholesale_price', transform: (value) => parseNonNegativeNumber(value, 'wholesalePrice') },
+        { prop: 'currentStock', column: 'current_stock', transform: (value) => parseNonNegativeNumber(value, 'currentStock') },
+        { prop: 'reorderLevel', column: 'reorder_level', transform: (value) => parseNonNegativeNumber(value, 'reorderLevel') },
         { prop: 'isActive', column: 'is_active', transform: (value) => parseBoolean(value, 'isActive') }
       ],
       body: req.body,

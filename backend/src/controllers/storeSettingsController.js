@@ -4,10 +4,22 @@ const {
   createHttpError,
   mapDatabaseError,
   normalizeOptionalString,
+  parseBoolean,
   parseNonNegativeNumber,
+  parsePositiveInteger,
   requireFields,
   sendItem
 } = require('../utils/controllerHelpers');
+
+const parsePrinterPort = (value) => {
+  const port = parsePositiveInteger(value, 'printerPort');
+
+  if (port > 65535) {
+    throw createHttpError(400, 'printerPort must be between 1 and 65535');
+  }
+
+  return port;
+};
 
 const getStoreSettings = async (req, res, next) => {
   try {
@@ -37,9 +49,15 @@ const createStoreSettings = async (req, res, next) => {
           email,
           currency_code,
           tax_rate,
-          receipt_footer
+          receipt_footer,
+          printer_enabled,
+          printer_host,
+          printer_port,
+          printer_device_id,
+          printer_use_ssl,
+          printer_buffer
         )
-        VALUES (1, $1, $2, $3, $4, $5, $6, $7)
+        VALUES (1, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
         ON CONFLICT (setting_id) DO UPDATE SET
           store_name = EXCLUDED.store_name,
           address = EXCLUDED.address,
@@ -47,7 +65,13 @@ const createStoreSettings = async (req, res, next) => {
           email = EXCLUDED.email,
           currency_code = EXCLUDED.currency_code,
           tax_rate = EXCLUDED.tax_rate,
-          receipt_footer = EXCLUDED.receipt_footer
+          receipt_footer = EXCLUDED.receipt_footer,
+          printer_enabled = EXCLUDED.printer_enabled,
+          printer_host = EXCLUDED.printer_host,
+          printer_port = EXCLUDED.printer_port,
+          printer_device_id = EXCLUDED.printer_device_id,
+          printer_use_ssl = EXCLUDED.printer_use_ssl,
+          printer_buffer = EXCLUDED.printer_buffer
         RETURNING *
       `,
       [
@@ -57,7 +81,13 @@ const createStoreSettings = async (req, res, next) => {
         normalizeOptionalString(req.body.email),
         normalizeOptionalString(req.body.currencyCode) || 'LKR',
         req.body.taxRate === undefined ? 0 : parseNonNegativeNumber(req.body.taxRate, 'taxRate'),
-        normalizeOptionalString(req.body.receiptFooter)
+        normalizeOptionalString(req.body.receiptFooter),
+        req.body.printerEnabled === undefined ? false : parseBoolean(req.body.printerEnabled, 'printerEnabled'),
+        normalizeOptionalString(req.body.printerHost),
+        req.body.printerPort === undefined ? 8008 : parsePrinterPort(req.body.printerPort),
+        normalizeOptionalString(req.body.printerDeviceId) || 'local_printer',
+        req.body.printerUseSsl === undefined ? false : parseBoolean(req.body.printerUseSsl, 'printerUseSsl'),
+        req.body.printerBuffer === undefined ? false : parseBoolean(req.body.printerBuffer, 'printerBuffer')
       ]
     );
 
@@ -80,7 +110,13 @@ const updateStoreSettings = async (req, res, next) => {
         { prop: 'email', column: 'email', transform: normalizeOptionalString },
         { prop: 'currencyCode', column: 'currency_code', transform: normalizeOptionalString },
         { prop: 'taxRate', column: 'tax_rate', transform: (value) => parseNonNegativeNumber(value, 'taxRate') },
-        { prop: 'receiptFooter', column: 'receipt_footer', transform: normalizeOptionalString }
+        { prop: 'receiptFooter', column: 'receipt_footer', transform: normalizeOptionalString },
+        { prop: 'printerEnabled', column: 'printer_enabled', transform: (value) => parseBoolean(value, 'printerEnabled') },
+        { prop: 'printerHost', column: 'printer_host', transform: normalizeOptionalString },
+        { prop: 'printerPort', column: 'printer_port', transform: parsePrinterPort },
+        { prop: 'printerDeviceId', column: 'printer_device_id', transform: (value) => normalizeOptionalString(value) || 'local_printer' },
+        { prop: 'printerUseSsl', column: 'printer_use_ssl', transform: (value) => parseBoolean(value, 'printerUseSsl') },
+        { prop: 'printerBuffer', column: 'printer_buffer', transform: (value) => parseBoolean(value, 'printerBuffer') }
       ],
       body: req.body
     });

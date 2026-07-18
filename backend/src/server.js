@@ -1,5 +1,7 @@
 require('dotenv').config();
 
+const fs = require('fs');
+const path = require('path');
 const express = require('express');
 const cors = require('cors');
 const { pool } = require('./config/db');
@@ -18,10 +20,13 @@ const storeSettingsRoutes = require('./routes/storeSettingsRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const clientOrigin = process.env.CLIENT_ORIGIN || process.env.RENDER_EXTERNAL_URL || '*';
+const frontendDistPath = path.resolve(__dirname, '../../frontend/dist');
+const frontendIndexPath = path.join(frontendDistPath, 'index.html');
 
 app.use(cors({
-  origin: process.env.CLIENT_ORIGIN || '*',
-  credentials: true
+  origin: clientOrigin,
+  credentials: clientOrigin !== '*'
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -39,7 +44,7 @@ app.use('/api/expenses', expensesRoutes);
 app.use('/api/reports', reportsRoutes);
 app.use('/api/store-settings', storeSettingsRoutes);
 
-app.get('/', (req, res) => {
+app.get('/api', (req, res) => {
   res.json({
     message: 'Grocery POS API is running',
     status: 'ok'
@@ -67,6 +72,22 @@ app.get('/health/db', async (req, res, next) => {
     next(error);
   }
 });
+
+if (fs.existsSync(frontendIndexPath)) {
+  app.use(express.static(frontendDistPath));
+
+  app.use((req, res, next) => {
+    const isFrontendRoute = req.method === 'GET'
+      && !req.path.startsWith('/api')
+      && !req.path.startsWith('/health');
+
+    if (isFrontendRoute) {
+      return res.sendFile(frontendIndexPath);
+    }
+
+    return next();
+  });
+}
 
 app.use((req, res) => {
   res.status(404).json({

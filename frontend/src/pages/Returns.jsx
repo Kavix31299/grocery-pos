@@ -278,7 +278,7 @@ const Returns = () => {
                   <div className="return-item-row" key={`return-item-${index}`}>
                     <input placeholder="Sale item ID" min="1" type="number" value={item.saleItemId} onChange={(event) => updateItem(index, 'saleItemId', event.target.value)} />
                     <input placeholder="Product ID" min="1" type="number" value={item.productId} onChange={(event) => updateItem(index, 'productId', event.target.value)} />
-                    <input placeholder="Qty" min="1" required type="number" value={item.quantity} onChange={(event) => updateItem(index, 'quantity', event.target.value)} />
+                    <input placeholder="Qty" min="0.01" required step="0.01" type="number" value={item.quantity} onChange={(event) => updateItem(index, 'quantity', event.target.value)} />
                     <input placeholder="Refund each" min="0" required step="0.01" type="number" value={item.unitRefundAmount} onChange={(event) => updateItem(index, 'unitRefundAmount', event.target.value)} />
                     <button className="ghost-button" onClick={() => removeItem(index)} type="button">Remove</button>
                   </div>

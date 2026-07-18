@@ -5,6 +5,7 @@
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
+    "start:render": "node scripts/initDatabase.js && node src/server.js",
     "dev": "node --watch src/server.js"
   },
   "keywords": [

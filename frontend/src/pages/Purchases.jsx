@@ -236,7 +236,7 @@ const Purchases = () => {
           />
         )}
       />
-      <div className="management-grid">
+      <div className="management-grid purchases-grid">
         <form className="panel management-form" onSubmit={editingPurchase ? submitStatusEdit : submitPurchase}>
           <div className="panel-heading">
             <h2>{editingPurchase ? 'Edit Purchase Status' : 'Add Purchases'}</h2>
@@ -299,12 +299,30 @@ const Purchases = () => {
               <div className="line-items">
                 {items.map((item, index) => (
                   <div className="purchase-item-row" key={`purchase-item-${index}`}>
-                    <input placeholder="Product ID" min="1" required type="number" value={item.productId} onChange={(event) => updateItem(index, 'productId', event.target.value)} />
-                    <input placeholder="Qty" min="1" required type="number" value={item.quantity} onChange={(event) => updateItem(index, 'quantity', event.target.value)} />
-                    <input placeholder="Unit cost" min="0" required step="0.01" type="number" value={item.unitCost} onChange={(event) => updateItem(index, 'unitCost', event.target.value)} />
-                    <input placeholder="Batch" value={item.batchNumber} onChange={(event) => updateItem(index, 'batchNumber', event.target.value)} />
-                    <input title="Manufactured date" type="date" value={item.manufacturedDate} onChange={(event) => updateItem(index, 'manufacturedDate', event.target.value)} />
-                    <input title="Expiry date" type="date" value={item.expiryDate} onChange={(event) => updateItem(index, 'expiryDate', event.target.value)} />
+                    <label className="purchase-item-field purchase-product-field">
+                      <span>Product ID</span>
+                      <input min="1" required type="number" value={item.productId} onChange={(event) => updateItem(index, 'productId', event.target.value)} />
+                    </label>
+                    <label className="purchase-item-field purchase-quantity-field">
+                      <span>Quantity</span>
+                      <input min="0.01" required step="0.01" type="number" value={item.quantity} onChange={(event) => updateItem(index, 'quantity', event.target.value)} />
+                    </label>
+                    <label className="purchase-item-field purchase-cost-field">
+                      <span>Unit cost</span>
+                      <input min="0" required step="0.01" type="number" value={item.unitCost} onChange={(event) => updateItem(index, 'unitCost', event.target.value)} />
+                    </label>
+                    <label className="purchase-item-field purchase-batch-field">
+                      <span>Batch</span>
+                      <input value={item.batchNumber} onChange={(event) => updateItem(index, 'batchNumber', event.target.value)} />
+                    </label>
+                    <label className="purchase-item-field purchase-manufactured-field">
+                      <span>Manufactured date</span>
+                      <input type="date" value={item.manufacturedDate} onChange={(event) => updateItem(index, 'manufacturedDate', event.target.value)} />
+                    </label>
+                    <label className="purchase-item-field purchase-expiry-field">
+                      <span>Expiry date</span>
+                      <input type="date" value={item.expiryDate} onChange={(event) => updateItem(index, 'expiryDate', event.target.value)} />
+                    </label>
                     <button className="ghost-button" onClick={() => removeItem(index)} type="button">Remove</button>
                   </div>
                 ))}

@@ -85,6 +85,13 @@ const REPORTS = {
     view: 'supplier_due_report',
     searchColumns: ['supplier_name', 'contact_person', 'phone', 'email'],
     orderBy: 'due_amount DESC, supplier_name ASC'
+  },
+  customerCredit: {
+    key: 'customerCredit',
+    label: 'Customer credit',
+    view: 'customer_credit_report',
+    searchColumns: ['customer_name', 'phone', 'email'],
+    orderBy: 'credit_balance DESC, customer_name ASC'
   }
 };
 
@@ -135,6 +142,7 @@ const runReport = (config) => async (req, res, next) => {
 
 module.exports = {
   getCashierSalesReport: runReport(REPORTS.cashierSales),
+  getCustomerCreditReport: runReport(REPORTS.customerCredit),
   getDailySalesReport: runReport(REPORTS.dailySales),
   getExpenseReport: runReport(REPORTS.expenses),
   getExpiringProductsReport: runReport(REPORTS.expiringProducts),

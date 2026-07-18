@@ -9,7 +9,13 @@ const initialSettings = {
   email: '',
   currencyCode: 'LKR',
   taxRate: 0,
-  receiptFooter: ''
+  receiptFooter: '',
+  printerEnabled: false,
+  printerHost: '',
+  printerPort: 8008,
+  printerDeviceId: 'local_printer',
+  printerUseSsl: false,
+  printerBuffer: false
 };
 
 const StoreSettings = () => {
@@ -66,7 +72,8 @@ const StoreSettings = () => {
     try {
       const response = await updateResource('/store-settings', {
         ...settings,
-        taxRate: Number(settings.taxRate || 0)
+        taxRate: Number(settings.taxRate || 0),
+        printerPort: Number(settings.printerPort || 8008)
       });
       setSettings({
         ...initialSettings,
@@ -157,6 +164,62 @@ const StoreSettings = () => {
                 value={settings.receiptFooter || ''}
               />
             </label>
+            <div className="settings-section">
+              <h2>Printer</h2>
+              <label className="checkbox-field">
+                <input
+                  checked={Boolean(settings.printerEnabled)}
+                  onChange={(event) => updateField('printerEnabled', event.target.checked)}
+                  type="checkbox"
+                />
+                Epson receipt printer
+              </label>
+              <div className="form-grid">
+                <label>
+                  Host / IP
+                  <input
+                    onChange={(event) => updateField('printerHost', event.target.value)}
+                    placeholder="192.168.1.100"
+                    type="text"
+                    value={settings.printerHost || ''}
+                  />
+                </label>
+                <label>
+                  Port
+                  <input
+                    max="65535"
+                    min="1"
+                    onChange={(event) => updateField('printerPort', event.target.value)}
+                    type="number"
+                    value={settings.printerPort ?? 8008}
+                  />
+                </label>
+                <label>
+                  Device ID
+                  <input
+                    onChange={(event) => updateField('printerDeviceId', event.target.value)}
+                    type="text"
+                    value={settings.printerDeviceId || 'local_printer'}
+                  />
+                </label>
+                <label className="checkbox-field">
+                  <input
+                    checked={Boolean(settings.printerUseSsl)}
+                    onChange={(event) => updateField('printerUseSsl', event.target.checked)}
+                    type="checkbox"
+                  />
+                  SSL / encryption
+                </label>
+                <label className="checkbox-field">
+                  <input
+                    checked={Boolean(settings.printerBuffer)}
+                    onChange={(event) => updateField('printerBuffer', event.target.checked)}
+                    type="checkbox"
+                  />
+                  Buffer
+                </label>
+              </div>
+            </div>
             <div className="form-footer">
               <button className="primary-button" disabled={saving} type="submit">
                 {saving ? 'Saving...' : 'Save settings'}
