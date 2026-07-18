@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Node.js Express backend for the Grocery Store POS system.",
   "main": "src/server.js",
+  "engines": {
+    "node": ">=24.0.0 <25"
+  },
   "scripts": {
     "start": "node src/server.js",
     "start:render": "node scripts/initDatabase.js && node src/server.js",
