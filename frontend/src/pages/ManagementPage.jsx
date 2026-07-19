@@ -60,12 +60,14 @@ const ManagementPage = ({
   columns,
   allowDelete = true,
   createRoles = ['Admin', 'Manager'],
+  editRoles = ['Admin', 'Manager'],
   deleteLabel = 'Delete',
   renderRowActions,
   searchPlaceholder = 'Search'
 }) => {
   const { user } = useAuth();
   const canCreate = createRoles.includes(user?.role);
+  const canEdit = editRoles.includes(user?.role);
   const [rows, setRows] = useState([]);
   const [search, setSearch] = useState('');
   const [form, setForm] = useState(() => getDefaultForm(fields));
@@ -212,9 +214,11 @@ const ManagementPage = ({
       render: (row) => (
         <div className="table-actions">
           {renderRowActions ? renderRowActions(row) : null}
-          <button className="ghost-button" onClick={() => startEdit(row)} type="button">
-            Edit
-          </button>
+          {canEdit ? (
+            <button className="ghost-button" onClick={() => startEdit(row)} type="button">
+              Edit
+            </button>
+          ) : null}
           {allowDelete && ['Admin', 'Manager'].includes(user?.role) ? (
             <button className="ghost-button danger-button" onClick={() => handleDelete(row)} type="button">
               {deleteLabel}

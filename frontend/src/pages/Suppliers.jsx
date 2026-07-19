@@ -9,6 +9,8 @@ const Suppliers = () => (
     endpoint="/suppliers"
     dataKey="suppliers"
     idKey="supplierId"
+    createRoles={['Admin', 'Manager', 'Cashier']}
+    editRoles={['Admin', 'Manager', 'Cashier']}
     fields={[
       { name: 'supplierName', label: 'Supplier name', required: true },
       { name: 'contactPerson', label: 'Contact person' },

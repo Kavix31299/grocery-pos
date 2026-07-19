@@ -9,6 +9,8 @@ const Categories = () => (
     endpoint="/categories"
     dataKey="categories"
     idKey="categoryId"
+    createRoles={['Admin', 'Manager', 'Cashier']}
+    editRoles={['Admin', 'Manager', 'Cashier']}
     fields={[
       { name: 'categoryName', label: 'Category name', required: true },
       { name: 'isActive', label: 'Active', type: 'checkbox', defaultValue: true },

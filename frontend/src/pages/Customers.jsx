@@ -208,6 +208,7 @@ const Customers = () => {
         dataKey="customers"
         idKey="customerId"
         createRoles={['Admin', 'Manager', 'Cashier']}
+        editRoles={['Admin', 'Manager', 'Cashier']}
         fields={[
           { name: 'customerName', label: 'Customer name', required: true },
           { name: 'phone', label: 'Phone', type: 'tel' },

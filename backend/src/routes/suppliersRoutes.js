@@ -9,7 +9,7 @@ router.use(verifyAuthToken);
 
 router.route('/')
   .get(checkUserRole(ROLES.MANAGER, ROLES.CASHIER), suppliersController.listSuppliers)
-  .post(checkUserRole(ROLES.MANAGER), suppliersController.createSupplier);
+  .post(checkUserRole(ROLES.MANAGER, ROLES.CASHIER), suppliersController.createSupplier);
 
 router.route('/:id')
   .get(checkUserRole(ROLES.MANAGER, ROLES.CASHIER), suppliersController.getSupplier)

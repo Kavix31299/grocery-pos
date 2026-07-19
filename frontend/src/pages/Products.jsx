@@ -87,6 +87,8 @@ const Products = () => {
       endpoint="/products"
       dataKey="products"
       idKey="productId"
+      createRoles={['Admin', 'Manager', 'Cashier']}
+      editRoles={['Admin', 'Manager', 'Cashier']}
       fields={fields}
       columns={[
         { key: 'productName', label: 'Product' },
