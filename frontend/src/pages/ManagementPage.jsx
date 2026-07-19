@@ -8,6 +8,7 @@ import {
   getResource,
   updateResource
 } from '../api/resourcesApi.js';
+import { translateSinhala } from '../utils/sinhalaTranslations.js';
 
 const getDefaultForm = (fields) => fields.reduce((form, field) => {
   form[field.name] = field.defaultValue ?? (field.type === 'checkbox' ? false : '');
@@ -181,7 +182,9 @@ const ManagementPage = ({
   };
 
   const handleDelete = async (row) => {
-    const confirmed = window.confirm(`${deleteLabel} ${row.displayName || row.name || row[idKey]}?`);
+    const confirmed = window.confirm(translateSinhala(
+      `${deleteLabel} ${row.displayName || row.name || row[idKey]}?`
+    ));
 
     if (!confirmed) {
       return;
@@ -309,7 +312,7 @@ const ManagementPage = ({
           </form>
         ) : (
           <section className="panel management-form">
-            <h2>Edit {title}</h2>
+            <h2>{`Edit ${title}`}</h2>
             <p className="muted">Select Edit beside a record to update it.</p>
           </section>
         )}

@@ -18,6 +18,10 @@ body {
   min-height: 100vh;
 }
 
+.sinhala-shell {
+  font-family: "Noto Sans Sinhala", "Iskoola Pota", Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
 button,
 input,
 select,

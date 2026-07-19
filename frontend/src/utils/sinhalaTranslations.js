@@ -1,0 +1,442 @@
+const translations = Object.freeze({
+  'Main navigation': 'ප්‍රධාන සංචාලනය',
+  'Sign out': 'පිටවන්න',
+  Staff: 'කාර්ය මණ්ඩලය',
+  Admin: 'පරිපාලක',
+  Manager: 'කළමනාකරු',
+  Cashier: 'අයකැමි',
+  POS: 'විකුණුම් කවුළුව',
+  Products: 'නිෂ්පාදන',
+  Categories: 'ප්‍රවර්ග',
+  Suppliers: 'සැපයුම්කරුවන්',
+  Customers: 'ගනුදෙනුකරුවන්',
+  Purchases: 'මිලදී ගැනීම්',
+  Returns: 'ආපසු භාරදීම්',
+  Expenses: 'වියදම්',
+  Sales: 'විකුණුම්',
+  Reports: 'වාර්තා',
+  Users: 'පරිශීලකයන්',
+  'Store Settings': 'වෙළඳසැල් සැකසුම්',
+  Inventory: 'තොග කළමනාකරණය',
+  Purchasing: 'මිලදී ගැනීම්',
+  Operations: 'මෙහෙයුම්',
+  Insights: 'විශ්ලේෂණ',
+  'Cashier POS': 'අයකැමි විකුණුම් කවුළුව',
+  'Sales & Credit': 'විකුණුම් සහ ණය',
+
+  'Product catalog, pricing, stock, and reorder levels.': 'නිෂ්පාදන නාමාවලිය, මිල ගණන්, තොගය සහ නැවත ඇණවුම් මට්ටම්.',
+  'Product grouping and category status.': 'නිෂ්පාදන කාණ්ඩගත කිරීම සහ ප්‍රවර්ග තත්ත්වය.',
+  'Supplier contact records and purchasing partners.': 'සැපයුම්කරුවන්ගේ සම්බන්ධතා සහ මිලදී ගැනීමේ හවුල්කරුවන්.',
+  'Customer profiles, loyalty points, outstanding credit, and bill history.': 'ගනුදෙනුකරු විස්තර, ප්‍රසාද ලකුණු, හිඟ ණය සහ බිල් ඉතිහාසය.',
+  'Add purchase orders, receive stock, and update purchase status.': 'මිලදී ගැනීමේ ඇණවුම් එක් කරන්න, තොග ලබාගන්න සහ මිලදී ගැනීමේ තත්ත්වය යාවත්කාලීන කරන්න.',
+  'Create customer returns and update return processing status.': 'ගනුදෙනුකරු ආපසු භාරදීම් එක් කර ඒවායේ සැකසුම් තත්ත්වය යාවත්කාලීන කරන්න.',
+  'Store operating expenses and expense categories.': 'වෙළඳසැලේ මෙහෙයුම් වියදම් සහ වියදම් ප්‍රවර්ග.',
+  'Invoices, customer credit balances, and payment collection history.': 'ඉන්වොයිසි, ගනුදෙනුකරු ණය ශේෂ සහ ගෙවීම් ලැබීම් ඉතිහාසය.',
+  'Sales, stock, profit, expenses, and supplier due reports.': 'විකුණුම්, තොග, ලාභ, වියදම් සහ සැපයුම්කරු හිඟ වාර්තා.',
+  'Staff accounts, roles, and active status.': 'කාර්ය මණ්ඩල ගිණුම්, භූමිකා සහ සක්‍රීය තත්ත්වය.',
+  'Receipt identity, tax, currency, and contact details.': 'රිසිට්පත් හඳුනාගැනීම, බදු, මුදල් ඒකකය සහ සම්බන්ධතා විස්තර.',
+  'Checkout, payment capture, invoice, and receipt printing.': 'ගෙවීම් සම්පූර්ණ කිරීම, ගෙවීම් සටහන් කිරීම, ඉන්වොයිසි සහ රිසිට්පත් මුද්‍රණය.',
+
+  Search: 'සොයන්න',
+  'Search products': 'නිෂ්පාදන සොයන්න',
+  'Search report': 'වාර්තාව සොයන්න',
+  'Search purchase number': 'මිලදී ගැනීමේ අංකය සොයන්න',
+  'Search return number': 'ආපසු භාරදීමේ අංකය සොයන්න',
+  'Search invoice number': 'ඉන්වොයිසි අංකය සොයන්න',
+  'Barcode, SKU, or product name': 'බාර්කෝඩ්, SKU හෝ නිෂ්පාදන නාමය',
+  'Item code or name': 'අයිතම කේතය හෝ නාමය',
+  'Bill category': 'බිල් ප්‍රවර්ගය',
+  Quantity: 'ප්‍රමාණය',
+  Qty: 'ප්‍රමාණය',
+  Price: 'මිල',
+  'Add item': 'අයිතමයක් එක් කරන්න',
+  Customer: 'ගනුදෙනුකරු',
+  'Walk-in customer': 'සාමාන්‍ය ගනුදෙනුකරු',
+  'Walk-in': 'සාමාන්‍ය ගනුදෙනුකරු',
+  'Searching products...': 'නිෂ්පාදන සොයමින්...',
+  'No products found.': 'නිෂ්පාදන හමු නොවීය.',
+  'No barcode': 'බාර්කෝඩ් නැත',
+  'No code': 'කේතයක් නැත',
+  'in stock': 'තොගයේ ඇත',
+  Cart: 'කරත්තය',
+  'Cart is empty.': 'කරත්තය හිස්ය.',
+  Product: 'නිෂ්පාදනය',
+  Selling: 'විකුණුම් මිල',
+  Retail: 'සිල්ලර මිල',
+  Wholesale: 'තොග මිල',
+  Total: 'මුළු එකතුව',
+  Payment: 'ගෙවීම',
+  Subtotal: 'අතුරු එකතුව',
+  Discount: 'වට්ටම',
+  Tax: 'බදු',
+  'Tax %': 'බදු %',
+  'Final total': 'අවසන් එකතුව',
+  Type: 'වර්ගය',
+  Amount: 'මුදල',
+  Percent: 'ප්‍රතිශතය',
+  'Customer credit': 'ගනුදෙනුකරු ණය',
+  'Allow full or partial payment and keep the balance due.': 'සම්පූර්ණ හෝ අර්ධ ගෙවීමක් ලබාගෙන ඉතිරි මුදල ණය ලෙස තබන්න.',
+  'Credit customer': 'ණය ගනුදෙනුකරු',
+  'Select a registered customer above.': 'ඉහතින් ලියාපදිංචි ගනුදෙනුකරුවෙකු තෝරන්න.',
+  'Payment method': 'ගෙවීමේ ක්‍රමය',
+  Cash: 'මුදල්',
+  Card: 'කාඩ්පත',
+  'Bank Transfer': 'බැංකු මාරුව',
+  'QR Payment': 'QR ගෙවීම',
+  'Split Payment': 'බෙදා ගෙවීම',
+  'Add payment': 'ගෙවීමක් එක් කරන්න',
+  'Amount paid now (optional)': 'දැන් ගෙවන මුදල (විකල්ප)',
+  'Paid amount': 'ගෙවූ මුදල',
+  Paid: 'ගෙවා ඇත',
+  Balance: 'ශේෂය',
+  Change: 'ඉතිරි මුදල',
+  'Credit due': 'ණය හිඟය',
+  'Complete sale': 'විකිණීම සම්පූර්ණ කරන්න',
+  'Complete credit sale': 'ණය විකිණීම සම්පූර්ණ කරන්න',
+  'Completing...': 'සම්පූර්ණ කරමින්...',
+  'Print receipt': 'රිසිට්පත මුද්‍රණය කරන්න',
+  'Printing...': 'මුද්‍රණය කරමින්...',
+  Receipt: 'රිසිට්පත',
+  'Customer:': 'ගනුදෙනුකරු:',
+  'Payment:': 'ගෙවීම:',
+  'Grocery Store': 'සිල්ලර වෙළඳසැල',
+  'Completed sale receipt appears here.': 'සම්පූර්ණ කළ විකිණීමේ රිසිට්පත මෙහි පෙන්වයි.',
+
+  Category: 'ප්‍රවර්ගය',
+  'Select category': 'ප්‍රවර්ගයක් තෝරන්න',
+  Supplier: 'සැපයුම්කරු',
+  'No supplier': 'සැපයුම්කරුවෙකු නැත',
+  'Product name': 'නිෂ්පාදන නාමය',
+  Barcode: 'බාර්කෝඩ්',
+  Unit: 'ඒකකය',
+  'Cost price (LKR)': 'ගැනුම් මිල (රු.)',
+  'Selling price (LKR)': 'විකුණුම් මිල (රු.)',
+  'Retail price (LKR)': 'සිල්ලර මිල (රු.)',
+  'Wholesale price (LKR)': 'තොග මිල (රු.)',
+  'Current stock': 'වත්මන් තොගය',
+  'Reorder level': 'නැවත ඇණවුම් මට්ටම',
+  Active: 'සක්‍රීය',
+  Inactive: 'අක්‍රීය',
+  Description: 'විස්තරය',
+  Stock: 'තොගය',
+  'Selling (LKR)': 'විකුණුම් (රු.)',
+  'Retail (LKR)': 'සිල්ලර (රු.)',
+  'Wholesale (LKR)': 'තොග (රු.)',
+  Status: 'තත්ත්වය',
+  Actions: 'ක්‍රියා',
+  'Category name': 'ප්‍රවර්ග නාමය',
+  'Supplier name': 'සැපයුකරුගේ නාමය',
+  'Contact person': 'සම්බන්ධතා පුද්ගලයා',
+  Contact: 'සම්බන්ධතාව',
+  Phone: 'දුරකථනය',
+  Email: 'විද්‍යුත් තැපෑල',
+  Address: 'ලිපිනය',
+  'Customer name': 'ගනුදෙනුකරුගේ නාමය',
+  'Loyalty points': 'ප්‍රසාද ලකුණු',
+  Points: 'ලකුණු',
+  'Credit sales': 'ණය විකුණුම්',
+  'Oldest credit': 'පැරණිතම ණය',
+  Records: 'වාර්තා',
+
+  Edit: 'සංස්කරණය',
+  Delete: 'මකන්න',
+  Deactivate: 'අක්‍රීය කරන්න',
+  Cancel: 'අවලංගු කරන්න',
+  Remove: 'ඉවත් කරන්න',
+  Reset: 'යළි සකසන්න',
+  'Save changes': 'වෙනස්කම් සුරකින්න',
+  'Save status': 'තත්ත්වය සුරකින්න',
+  'Saving...': 'සුරකිමින්...',
+  'Select Edit beside a record to update it.': 'යාවත්කාලීන කිරීමට අදාළ වාර්තාව අසල ඇති සංස්කරණය තෝරන්න.',
+  'Loading records...': 'වාර්තා පූරණය කරමින්...',
+  'No records found': 'වාර්තා හමු නොවීය',
+
+  'Purchase No.': 'මිලදී ගැනීමේ අංකය',
+  'Purchase number': 'මිලදී ගැනීමේ අංකය',
+  'Purchase status': 'මිලදී ගැනීමේ තත්ත්වය',
+  'Supplier ID': 'සැපයුම්කරුගේ ID',
+  'Product ID': 'නිෂ්පාදන ID',
+  'Unit cost': 'ඒකක පිරිවැය',
+  Batch: 'කාණ්ඩ අංකය',
+  'Manufactured date': 'නිෂ්පාදිත දිනය',
+  'Expiry date': 'කල් ඉකුත් වන දිනය',
+  'Amount paid': 'ගෙවූ මුදල',
+  Notes: 'සටහන්',
+  'Add Purchase': 'මිලදී ගැනීමක් එක් කරන්න',
+  'Add Purchases': 'මිලදී ගැනීමක් එක් කරන්න',
+  'Edit Purchase Status': 'මිලදී ගැනීමේ තත්ත්වය සංස්කරණය',
+  'Loading purchases...': 'මිලදී ගැනීම් පූරණය කරමින්...',
+  Ordered: 'ඇණවුම් කළ',
+  Received: 'ලැබුණු',
+  Cancelled: 'අවලංගු කළ',
+  'Purchase added': 'මිලදී ගැනීම එක් කරන ලදී',
+  'Purchase status updated': 'මිලදී ගැනීමේ තත්ත්වය යාවත්කාලීන කරන ලදී',
+
+  'Return No.': 'ආපසු භාරදීමේ අංකය',
+  'Return number': 'ආපසු භාරදීමේ අංකය',
+  'Return status': 'ආපසු භාරදීමේ තත්ත්වය',
+  Invoice: 'ඉන්වොයිසිය',
+  Refund: 'ආපසු ගෙවීම',
+  Reason: 'හේතුව',
+  'Sale ID': 'විකුණුම් ID',
+  'Sale item ID': 'විකුණුම් අයිතම ID',
+  'Customer ID': 'ගනුදෙනුකරුගේ ID',
+  'Refund each': 'එකකට ආපසු ගෙවීම',
+  'Total refund': 'මුළු ආපසු ගෙවීම',
+  'Add Return': 'ආපසු භාරදීමක් එක් කරන්න',
+  'Add Returns': 'ආපසු භාරදීමක් එක් කරන්න',
+  'Edit Return Status': 'ආපසු භාරදීමේ තත්ත්වය සංස්කරණය',
+  'Loading returns...': 'ආපසු භාරදීම් පූරණය කරමින්...',
+  Pending: 'අපේක්ෂිත',
+  Approved: 'අනුමත',
+  Rejected: 'ප්‍රතික්ෂේප කළ',
+  Completed: 'සම්පූර්ණ කළ',
+  'Return added': 'ආපසු භාරදීම එක් කරන ලදී',
+  'Return status updated': 'ආපසු භාරදීමේ තත්ත්වය යාවත්කාලීන කරන ලදී',
+
+  'Expense date': 'වියදම් දිනය',
+  'Recorded by': 'සටහන් කළේ',
+  Date: 'දිනය',
+  'Record credit payment': 'ණය ගෙවීමක් සටහන් කරන්න',
+  'Record payment': 'ගෙවීම සටහන් කරන්න',
+  'Recording...': 'සටහන් කරමින්...',
+  Reference: 'යොමුව',
+  Optional: 'විකල්ප',
+  Outstanding: 'හිඟ මුදල',
+  'No sales found': 'විකුණුම් හමු නොවීය',
+  'Loading sales...': 'විකුණුම් පූරණය කරමින්...',
+  'Sale status': 'විකුණුම් තත්ත්වය',
+  Unpaid: 'නොගෙවූ',
+  Partial: 'අර්ධ ගෙවූ',
+
+  'Customer account': 'ගනුදෙනුකරුගේ ගිණුම',
+  'No phone': 'දුරකථන අංකයක් නැත',
+  'Receive payment': 'ගෙවීම ලබාගන්න',
+  'Close records': 'වාර්තා වසන්න',
+  Bills: 'බිල්පත්',
+  'Total purchases': 'මුළු මිලදී ගැනීම්',
+  'Total paid': 'මුළු ගෙවූ මුදල',
+  'Receive customer payment': 'ගනුදෙනුකරුගේ ගෙවීම ලබාගන්න',
+  'Applied to the oldest outstanding bills first.': 'පළමුව පැරණිතම හිඟ බිල්පත් සඳහා යොදනු ලැබේ.',
+  'Customer credit due': 'ගනුදෙනුකරුගේ ණය හිඟය',
+  'Bill history': 'බිල්පත් ඉතිහාසය',
+  'Loading customer records...': 'ගනුදෙනුකරුගේ වාර්තා පූරණය කරමින්...',
+  'Loading bill details...': 'බිල්පත් විස්තර පූරණය කරමින්...',
+  'Bill details': 'බිල්පත් විස්තර',
+  'Payment history': 'ගෙවීම් ඉතිහාසය',
+  'Unit price': 'ඒකක මිල',
+  'Line total': 'පේළි එකතුව',
+  'Paid at': 'ගෙවූ වේලාව',
+  Method: 'ක්‍රමය',
+  'Received by': 'ලබාගත්තේ',
+  'No bills found for this customer': 'මෙම ගනුදෙනුකරු සඳහා බිල්පත් හමු නොවීය',
+  'No bill items found': 'බිල්පත් අයිතම හමු නොවීය',
+  'No payments recorded for this bill': 'මෙම බිල්පත සඳහා ගෙවීම් සටහන් වී නැත',
+
+  'Full name': 'සම්පූර්ණ නම',
+  Name: 'නම',
+  Username: 'පරිශීලක නාමය',
+  Password: 'මුරපදය',
+  Role: 'භූමිකාව',
+
+  'Store name': 'වෙළඳසැලේ නම',
+  Currency: 'මුදල් ඒකකය',
+  'Tax rate': 'බදු අනුපාතය',
+  'Receipt footer': 'රිසිට්පත් පාදකය',
+  Printer: 'මුද්‍රණ යන්ත්‍රය',
+  'Epson receipt printer': 'Epson රිසිට්පත් මුද්‍රණ යන්ත්‍රය',
+  'Host / IP': 'ධාරකය / IP',
+  Port: 'පෝට් අංකය',
+  'Device ID': 'උපාංග ID',
+  'SSL / encryption': 'SSL / සංකේතනය',
+  Buffer: 'බෆරය',
+  'Save settings': 'සැකසුම් සුරකින්න',
+  'Loading settings...': 'සැකසුම් පූරණය කරමින්...',
+  'Store settings saved': 'වෙළඳසැල් සැකසුම් සුරකින ලදී',
+
+  'Daily sales': 'දෛනික විකුණුම්',
+  'Monthly sales': 'මාසික විකුණුම්',
+  'Product sales': 'නිෂ්පාදන විකුණුම්',
+  'Cashier sales': 'අයකැමි විකුණුම්',
+  'Stock available': 'ලබාගත හැකි තොගය',
+  'Low stock': 'අඩු තොගය',
+  'Out of stock': 'තොග අවසන්',
+  'Expiring products': 'කල් ඉකුත් වන නිෂ්පාදන',
+  Profit: 'ලාභය',
+  'Supplier due': 'සැපයුම්කරුගේ හිඟය',
+  'Customer credit': 'ගනුදෙනුකරුගේ ණය',
+  'Date filter': 'දින පෙරහන',
+  'Live summary': 'සජීවී සාරාංශය',
+  ' + search': ' + සෙවීම',
+  'All reports': 'සියලු වාර්තා',
+  From: 'සිට',
+  To: 'දක්වා',
+  'Live report': 'සජීවී වාර්තාව',
+  'This report reflects current or all-time summary data.': 'මෙම වාර්තාව වත්මන් හෝ සියලු කාල සාරාංශ දත්ත පෙන්වයි.',
+  'Print report': 'වාර්තාව මුද්‍රණය කරන්න',
+  Start: 'ආරම්භය',
+  Today: 'අද',
+  'Generated report': 'සාදන ලද වාර්තාව',
+  'Loading report...': 'වාර්තාව පූරණය කරමින්...',
+  'No report rows found': 'වාර්තා දත්ත හමු නොවීය',
+  Month: 'මාසය',
+  Invoices: 'ඉන්වොයිසි',
+  'Items sold': 'විකුණු අයිතම',
+  Sold: 'විකුණා ඇත',
+  Returned: 'ආපසු ලැබුණු',
+  'Last sold': 'අවසන් විකිණීම',
+  Reorder: 'නැවත ඇණවුම',
+  Shortage: 'හිඟය',
+  Purchased: 'මිලදී ගත්',
+  Expiry: 'කල් ඉකුත්වීම',
+  Days: 'දින',
+  Count: 'ගණන',
+  'Latest purchase': 'නවතම මිලදී ගැනීම',
+  'Last sale': 'අවසන් විකිණීම',
+  'Sales Amount': 'විකුණුම් මුදල',
+  'Refund Amount': 'ආපසු ගෙවූ මුදල',
+  'Net Sales Amount': 'ශුද්ධ විකුණුම් මුදල',
+  'Paid Amount': 'ගෙවූ මුදල',
+  'Balance Amount': 'ශේෂ මුදල',
+  'Estimated Profit Amount': 'ඇස්තමේන්තුගත ලාභය',
+  'Stock Cost Value': 'තොග පිරිවැය',
+  'Selling Price': 'විකුණුම් මිල',
+  'Cost Of Goods Sold': 'විකුණු භාණ්ඩ පිරිවැය',
+  'Expense Amount': 'වියදම් මුදල',
+  'Gross Profit Amount': 'දළ ලාභය',
+  'Net Profit Amount': 'ශුද්ධ ලාභය',
+  'Total Expense Amount': 'මුළු වියදම් මුදල',
+  'Total Purchase Amount': 'මුළු මිලදී ගැනීමේ මුදල',
+  'Due Amount': 'හිඟ මුදල',
+  'Total Credit Sales Amount': 'මුළු ණය විකුණුම් මුදල',
+  'Credit Balance': 'ණය ශේෂය',
+
+  'Daily invoice count, sold items, sales, refunds, and net sales.': 'දෛනික ඉන්වොයිසි ගණන, විකුණු අයිතම, විකුණුම්, ආපසු ගෙවීම් සහ ශුද්ධ විකුණුම්.',
+  'Monthly sales totals, refunds, paid amounts, and balances.': 'මාසික විකුණුම් එකතු, ආපසු ගෙවීම්, ගෙවූ මුදල් සහ ශේෂ.',
+  'Product quantities sold, returned, revenue, and estimated profit.': 'විකුණු සහ ආපසු ලැබුණු නිෂ්පාදන ප්‍රමාණ, ආදායම සහ ඇස්තමේන්තුගත ලාභය.',
+  'Cashier invoice counts, sales totals, refunds, and balances.': 'අයකැමි ඉන්වොයිසි ගණන, විකුණුම් එකතු, ආපසු ගෙවීම් සහ ශේෂ.',
+  'Available stock, reorder status, and stock value by product.': 'නිෂ්පාදනය අනුව ලබාගත හැකි තොගය, නැවත ඇණවුම් තත්ත්වය සහ තොග වටිනාකම.',
+  'Products that are at or below their reorder level.': 'නැවත ඇණවුම් මට්ටමට සමාන හෝ ඊට අඩු නිෂ්පාදන.',
+  'Active products with no stock available.': 'තොග නොමැති සක්‍රීය නිෂ්පාදන.',
+  'Received product batches that are expired or expiring soon.': 'කල් ඉකුත් වූ හෝ ඉක්මනින් කල් ඉකුත් වන ලැබුණු නිෂ්පාදන කාණ්ඩ.',
+  'Daily sales, cost of goods, expenses, gross profit, and net profit.': 'දෛනික විකුණුම්, භාණ්ඩ පිරිවැය, වියදම්, දළ ලාභය සහ ශුද්ධ ලාභය.',
+  'Expense totals grouped by date, category, and staff member.': 'දිනය, ප්‍රවර්ගය සහ කාර්ය මණ්ඩල සාමාජිකයා අනුව කාණ්ඩගත වියදම් එකතු.',
+  'Outstanding supplier balances and due purchase totals.': 'සැපයුම්කරුවන්ගේ හිඟ ශේෂ සහ ගෙවිය යුතු මිලදී ගැනීම් එකතු.',
+  'Outstanding customer balances, paid amounts, and oldest credit dates.': 'ගනුදෙනුකරුවන්ගේ හිඟ ශේෂ, ගෙවූ මුදල් සහ පැරණිතම ණය දින.',
+
+  'Could not load records': 'වාර්තා පූරණය කළ නොහැකි විය',
+  'Could not load purchases': 'මිලදී ගැනීම් පූරණය කළ නොහැකි විය',
+  'Could not save purchase': 'මිලදී ගැනීම සුරැකිය නොහැකි විය',
+  'Could not update purchase status': 'මිලදී ගැනීමේ තත්ත්වය යාවත්කාලීන කළ නොහැකි විය',
+  'Could not load returns': 'ආපසු භාරදීම් පූරණය කළ නොහැකි විය',
+  'Could not save return': 'ආපසු භාරදීම සුරැකිය නොහැකි විය',
+  'Could not update return status': 'ආපසු භාරදීමේ තත්ත්වය යාවත්කාලීන කළ නොහැකි විය',
+  'Could not load sales': 'විකුණුම් පූරණය කළ නොහැකි විය',
+  'Could not record payment': 'ගෙවීම සටහන් කළ නොහැකි විය',
+  'Could not load report': 'වාර්තාව පූරණය කළ නොහැකි විය',
+  'Could not load store settings': 'වෙළඳසැල් සැකසුම් පූරණය කළ නොහැකි විය',
+  'Could not save store settings': 'වෙළඳසැල් සැකසුම් සුරැකිය නොහැකි විය',
+  'Customers could not be loaded': 'ගනුදෙනුකරුවන් පූරණය කළ නොහැකි විය',
+  'Product search failed': 'නිෂ්පාදන සෙවීම අසාර්ථක විය',
+  'Enter a quantity greater than 0': '0 ට වැඩි ප්‍රමාණයක් ඇතුළත් කරන්න',
+  'Enter a valid price': 'වලංගු මිලක් ඇතුළත් කරන්න',
+  'Select a product first': 'පළමුව නිෂ්පාදනයක් තෝරන්න',
+  'Add at least one product to the cart': 'අවම වශයෙන් එක් නිෂ්පාදනයක් කරත්තයට එක් කරන්න',
+  'Every cart item needs a quantity greater than 0': 'කරත්තයේ සෑම අයිතමයකටම 0 ට වැඩි ප්‍රමාණයක් අවශ්‍යයි',
+  'Select a registered customer before placing a sale on credit': 'ණය විකිණීමක් කිරීමට පෙර ලියාපදිංචි ගනුදෙනුකරුවෙකු තෝරන්න',
+  'Enter the full paid amount or enable customer credit': 'සම්පූර්ණ ගෙවූ මුදල ඇතුළත් කරන්න හෝ ගනුදෙනුකරු ණය සක්‍රීය කරන්න',
+  'Sale could not be completed': 'විකිණීම සම්පූර්ණ කළ නොහැකි විය',
+  'Receipt sent to Epson printer': 'රිසිට්පත Epson මුද්‍රණ යන්ත්‍රයට යවන ලදී'
+});
+
+const resourceNames = Object.freeze({
+  products: 'නිෂ්පාදන',
+  categories: 'ප්‍රවර්ග',
+  suppliers: 'සැපයුම්කරුවන්',
+  customers: 'ගනුදෙනුකරුවන්',
+  expenses: 'වියදම්',
+  users: 'පරිශීලකයන්'
+});
+
+const translateDynamicText = (text) => {
+  const patterns = [
+    [/^(\d+) items?$/, '$1 අයිතම'],
+    [/^(\d+) records?$/, '$1 වාර්තා'],
+    [/^(\d+) payments?$/, '$1 ගෙවීම්'],
+    [/^(.+) in stock$/, '$1 තොගයේ ඇත'],
+    [/^Existing balance:\s*(.+)$/, 'පවතින ශේෂය: $1'],
+    [/^Customer:\s*(.+)$/, 'ගනුදෙනුකරු: $1'],
+    [/^Payment:\s*(.+)$/, 'ගෙවීම: $1'],
+    [/^Quantity for\s+(.+)$/, '$1 සඳහා ප්‍රමාණය'],
+    [/^Payment recorded for\s+(.+)$/, '$1 සඳහා ගෙවීම සටහන් කරන ලදී'],
+    [/^(.+) received and applied to (\d+) bills?\.$/, '$1 ලබාගෙන බිල්පත් $2කට යොදන ලදී.'],
+    [/^(.+) is out of stock$/, '$1 තොගය අවසන් වී ඇත'],
+    [/^Only (.+) available for (.+)$/, '$2 සඳහා ලබාගත හැක්කේ $1 පමණි'],
+    [/^(.+)\. Browser receipt opened instead\.$/, '$1. ඒ වෙනුවට බ්‍රවුසරයේ රිසිට්පත විවෘත කරන ලදී.']
+  ];
+
+  for (const [pattern, replacement] of patterns) {
+    if (pattern.test(text)) {
+      return text.replace(pattern, replacement);
+    }
+  }
+
+  const managementMatch = text.match(/^(Add|Edit) (Products|Categories|Suppliers|Customers|Expenses|Users)$/);
+
+  if (managementMatch) {
+    const action = managementMatch[1] === 'Add' ? 'එක් කරන්න' : 'සංස්කරණය කරන්න';
+    return `${translations[managementMatch[2]]} ${action}`;
+  }
+
+  const resultMatch = text.match(/^(Products|Categories|Suppliers|Customers|Expenses|Users) (added|updated|deleted)$/);
+
+  if (resultMatch) {
+    const action = {
+      added: 'එක් කරන ලදී',
+      updated: 'යාවත්කාලීන කරන ලදී',
+      deleted: 'මකා දමන ලදී'
+    }[resultMatch[2]];
+    return `${translations[resultMatch[1]]} ${action}`;
+  }
+
+  const confirmationMatch = text.match(/^(Delete|Deactivate) (.+)\?$/);
+
+  if (confirmationMatch) {
+    const action = confirmationMatch[1] === 'Delete' ? 'මකා දමන්නද' : 'අක්‍රීය කරන්නද';
+    return `${confirmationMatch[2]} ${action}?`;
+  }
+
+  const emptyMatch = text.match(/^No (products|categories|suppliers|customers|expenses|users) found$/);
+
+  if (emptyMatch) {
+    return `${resourceNames[emptyMatch[1]]} හමු නොවීය`;
+  }
+
+  const loadingMatch = text.match(/^Could not (load|save|delete) (products|categories|suppliers|customers|expenses|users)$/);
+
+  if (loadingMatch) {
+    const action = {
+      load: 'පූරණය',
+      save: 'සුරැකීම',
+      delete: 'මකා දැමීම'
+    }[loadingMatch[1]];
+    return `${resourceNames[loadingMatch[2]]} ${action} කළ නොහැකි විය`;
+  }
+
+  return text;
+};
+
+export const translateSinhala = (value) => {
+  if (typeof value !== 'string' || !value.trim()) {
+    return value;
+  }
+
+  const leadingWhitespace = value.match(/^\s*/)?.[0] || '';
+  const trailingWhitespace = value.match(/\s*$/)?.[0] || '';
+  const text = value.trim();
+  const translated = translations[text] || translateDynamicText(text);
+
+  return `${leadingWhitespace}${translated}${trailingWhitespace}`;
+};
+
+export default translations;

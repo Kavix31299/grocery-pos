@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import LoadingScreen from '../components/LoadingScreen.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import DashboardLayout from '../layouts/DashboardLayout.jsx';
+import SinhalaLayout from '../layouts/SinhalaLayout.jsx';
 import AdminDashboard from '../pages/AdminDashboard.jsx';
 import CashierPOS from '../pages/CashierPOS.jsx';
 import Categories from '../pages/Categories.jsx';
@@ -41,7 +42,7 @@ const AppRoutes = () => (
     <Route path="/" element={<HomeRedirect />} />
 
     <Route element={<ProtectedRoute roles={['Admin', 'Manager', 'Cashier']} />}>
-      <Route element={<DashboardLayout />}>
+      <Route element={<SinhalaLayout />}>
         <Route path="/pos" element={<CashierPOS />} />
         <Route path="/customers" element={<Customers />} />
         <Route path="/products" element={<Products />} />
@@ -55,6 +56,8 @@ const AppRoutes = () => (
     <Route element={<ProtectedRoute roles={['Admin']} />}>
       <Route element={<DashboardLayout />}>
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
+      </Route>
+      <Route element={<SinhalaLayout />}>
         <Route path="/users" element={<Users />} />
         <Route path="/store-settings" element={<StoreSettings />} />
       </Route>
@@ -63,6 +66,8 @@ const AppRoutes = () => (
     <Route element={<ProtectedRoute roles={['Admin', 'Manager']} />}>
       <Route element={<DashboardLayout />}>
         <Route path="/manager/dashboard" element={<ManagerDashboard />} />
+      </Route>
+      <Route element={<SinhalaLayout />}>
         <Route path="/purchases" element={<Purchases />} />
         <Route path="/expenses" element={<Expenses />} />
         <Route path="/reports" element={<Reports />} />
