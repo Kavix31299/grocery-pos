@@ -6,7 +6,17 @@ import { translateSinhala } from '../utils/sinhalaTranslations.js';
 
 const translatableAttributes = ['aria-label', 'placeholder', 'title'];
 
+const isTranslationDisabled = (node) => {
+  const element = node?.nodeType === Node.ELEMENT_NODE ? node : node?.parentElement;
+
+  return Boolean(element?.closest?.('[data-no-translate="true"]'));
+};
+
 const translateTextNode = (node) => {
+  if (isTranslationDisabled(node)) {
+    return;
+  }
+
   const translated = translateSinhala(node.nodeValue);
 
   if (translated !== node.nodeValue) {
@@ -15,6 +25,10 @@ const translateTextNode = (node) => {
 };
 
 const translateElementAttributes = (element) => {
+  if (isTranslationDisabled(element)) {
+    return;
+  }
+
   if (element.tagName === 'OPTION' && !element.hasAttribute('value')) {
     element.setAttribute('value', element.textContent.trim());
   }
@@ -44,6 +58,10 @@ const translateTree = (root) => {
   }
 
   if (root.nodeType !== Node.ELEMENT_NODE) {
+    return;
+  }
+
+  if (isTranslationDisabled(root)) {
     return;
   }
 

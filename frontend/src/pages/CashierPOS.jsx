@@ -1,16 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import PageHeader from '../components/PageHeader.jsx';
+import Receipt from '../components/Receipt.jsx';
 import { createResource, getResource } from '../api/resourcesApi.js';
 import {
-  DEFAULT_CURRENCY,
   formatCurrency,
-  formatDateTime,
   formatQuantity
 } from '../utils/formatters.js';
 import {
   isEpsonPrinterConfigured,
   printReceiptWithEpson
 } from '../utils/epsonReceiptPrinter.js';
+import { buildReceiptPrintDocument, RECEIPT_LANGUAGES } from '../utils/receipt.js';
 
 const paymentMethods = ['Cash', 'Card', 'Bank Transfer', 'QR Payment', 'Split Payment'];
 const splitPaymentMethods = ['Cash', 'Card', 'Bank Transfer', 'QR Payment'];
@@ -45,147 +45,6 @@ const getBillCategoryLabel = (billCategory) => (
   billCategories.find((category) => category.value === billCategory)?.label || 'Selling'
 );
 
-const escapeReceiptText = (value) => String(value ?? '')
-  .replace(/&/g, '&amp;')
-  .replace(/</g, '&lt;')
-  .replace(/>/g, '&gt;')
-  .replace(/"/g, '&quot;')
-  .replace(/'/g, '&#39;');
-
-const buildReceiptPrintDocument = (invoice) => {
-  const currencyCode = invoice.store?.currencyCode || DEFAULT_CURRENCY;
-  const paidAmount = Number(invoice.paidAmount || 0);
-  const totalAmount = Number(invoice.totalAmount || 0);
-  const changeAmount = Math.max(paidAmount - totalAmount, 0);
-  const receiptLines = (invoice.items || []).map((item) => `
-    <div class="receipt-line">
-      <span>${escapeReceiptText(item.productName)}</span>
-      <span>${escapeReceiptText(formatQuantity(item.quantity))} x ${escapeReceiptText(formatCurrency(item.unitPrice, currencyCode))}</span>
-      <strong>${escapeReceiptText(formatCurrency(item.lineTotal, currencyCode))}</strong>
-    </div>
-  `).join('');
-
-  return `
-    <!doctype html>
-    <html>
-      <head>
-        <title>${escapeReceiptText(invoice.invoiceNumber || 'Receipt')}</title>
-        <style>
-          @page {
-            size: 80mm auto;
-            margin: 4mm;
-          }
-
-          * {
-            box-sizing: border-box;
-          }
-
-          body {
-            width: 72mm;
-            margin: 0;
-            color: #111;
-            font-family: Arial, Helvetica, sans-serif;
-            font-size: 12px;
-            line-height: 1.35;
-          }
-
-          .store,
-          .meta,
-          .footer {
-            display: grid;
-            gap: 2px;
-            text-align: center;
-          }
-
-          .store strong {
-            font-size: 16px;
-          }
-
-          .meta {
-            margin-top: 10px;
-            color: #333;
-          }
-
-          .receipt-lines {
-            display: grid;
-            gap: 7px;
-            border-top: 1px dashed #444;
-            border-bottom: 1px dashed #444;
-            margin: 12px 0;
-            padding: 10px 0;
-          }
-
-          .receipt-line {
-            display: grid;
-            grid-template-columns: minmax(0, 1fr) auto auto;
-            gap: 8px;
-            align-items: start;
-          }
-
-          .receipt-line span:first-child {
-            overflow-wrap: anywhere;
-          }
-
-          .totals {
-            display: grid;
-            gap: 5px;
-          }
-
-          .totals div {
-            display: flex;
-            justify-content: space-between;
-            gap: 12px;
-          }
-
-          .totals .grand-total {
-            border-top: 1px solid #222;
-            margin-top: 4px;
-            padding-top: 6px;
-            font-size: 14px;
-          }
-
-          .footer {
-            margin-top: 12px;
-          }
-        </style>
-      </head>
-      <body>
-        <main>
-          <section class="store">
-            <strong>${escapeReceiptText(invoice.store?.storeName || 'Grocery Store')}</strong>
-            ${invoice.store?.address ? `<span>${escapeReceiptText(invoice.store.address)}</span>` : ''}
-            ${invoice.store?.phone ? `<span>${escapeReceiptText(invoice.store.phone)}</span>` : ''}
-          </section>
-
-          <section class="meta">
-            <span>${escapeReceiptText(invoice.invoiceNumber)}</span>
-            <span>${escapeReceiptText(formatDateTime(invoice.saleDate))}</span>
-            <span>Customer: ${escapeReceiptText(invoice.customer?.name || 'Walk-in')}</span>
-            <span>${escapeReceiptText(invoice.cashier?.name || 'Cashier')}</span>
-            <span>Payment: ${escapeReceiptText(invoice.paymentStatus || 'Paid')}</span>
-          </section>
-
-          <section class="receipt-lines">
-            ${receiptLines}
-          </section>
-
-          <section class="totals">
-            <div><span>Subtotal</span><strong>${escapeReceiptText(formatCurrency(invoice.subtotalAmount, currencyCode))}</strong></div>
-            <div><span>Discount</span><strong>${escapeReceiptText(formatCurrency(invoice.discountAmount, currencyCode))}</strong></div>
-            <div><span>Tax</span><strong>${escapeReceiptText(formatCurrency(invoice.taxAmount, currencyCode))}</strong></div>
-            <div class="grand-total"><span>Total</span><strong>${escapeReceiptText(formatCurrency(totalAmount, currencyCode))}</strong></div>
-            <div><span>Paid</span><strong>${escapeReceiptText(formatCurrency(paidAmount, currencyCode))}</strong></div>
-            <div><span>Balance</span><strong>${escapeReceiptText(formatCurrency(invoice.balanceAmount, currencyCode))}</strong></div>
-            <div><span>Change</span><strong>${escapeReceiptText(formatCurrency(changeAmount, currencyCode))}</strong></div>
-          </section>
-
-          ${invoice.store?.receiptFooter ? `<p class="footer">${escapeReceiptText(invoice.store.receiptFooter)}</p>` : ''}
-        </main>
-      </body>
-    </html>
-  `;
-};
-
 const CashierPOS = () => {
   const productSearchRef = useRef(null);
   const quantityInputRef = useRef(null);
@@ -209,6 +68,7 @@ const CashierPOS = () => {
   const [splitPayments, setSplitPayments] = useState([{ ...emptySplitPayment }]);
   const [submitting, setSubmitting] = useState(false);
   const [printingReceipt, setPrintingReceipt] = useState(false);
+  const [receiptLanguage, setReceiptLanguage] = useState('si');
   const [printMessage, setPrintMessage] = useState('');
   const [printError, setPrintError] = useState('');
   const [error, setError] = useState('');
@@ -575,11 +435,19 @@ const CashierPOS = () => {
       return;
     }
 
+    const openPrintDialog = () => {
+      const fontsReady = printWindow.document.fonts?.ready || Promise.resolve();
+
+      fontsReady.finally(() => {
+        printWindow.focus();
+        printWindow.print();
+      });
+    };
+
+    printWindow.addEventListener('load', openPrintDialog, { once: true });
     printWindow.document.open();
-    printWindow.document.write(buildReceiptPrintDocument(invoice));
+    printWindow.document.write(buildReceiptPrintDocument(invoice, receiptLanguage));
     printWindow.document.close();
-    printWindow.focus();
-    printWindow.print();
   };
 
   const handlePrintReceipt = async () => {
@@ -598,7 +466,7 @@ const CashierPOS = () => {
     }
 
     try {
-      await printReceiptWithEpson(invoice);
+      await printReceiptWithEpson(invoice, receiptLanguage);
       setPrintMessage('Receipt sent to Epson printer');
     } catch (receiptError) {
       setPrintError(`${receiptError.message}. Browser receipt opened instead.`);
@@ -945,6 +813,18 @@ const CashierPOS = () => {
             </div>
           </div>
 
+          <label className="receipt-language-field">
+            Receipt language
+            <select
+              onChange={(event) => setReceiptLanguage(event.target.value)}
+              value={receiptLanguage}
+            >
+              {RECEIPT_LANGUAGES.map((language) => (
+                <option key={language.value} value={language.value}>{language.label}</option>
+              ))}
+            </select>
+          </label>
+
           <div className="pos-actions pos-actions--stacked">
             <button className="primary-button" disabled={submitting} type="submit">
               {submitting ? 'Completing...' : isCreditSale ? 'Complete credit sale' : 'Complete sale'}
@@ -969,58 +849,7 @@ const CashierPOS = () => {
           {invoice ? <span>{invoice.invoiceNumber}</span> : null}
         </div>
         {invoice ? (
-          <div className="receipt">
-            <div className="receipt-store">
-              <strong>{invoice.store?.storeName || 'Grocery Store'}</strong>
-              {invoice.store?.address ? <span>{invoice.store.address}</span> : null}
-              {invoice.store?.phone ? <span>{invoice.store.phone}</span> : null}
-            </div>
-            <div className="receipt-meta">
-              <span>{invoice.invoiceNumber}</span>
-              <span>{formatDateTime(invoice.saleDate)}</span>
-              <span>Customer: {invoice.customer?.name || 'Walk-in'}</span>
-              <span>{invoice.cashier?.name || 'Cashier'}</span>
-              <span>Payment: {invoice.paymentStatus}</span>
-            </div>
-            <div className="receipt-lines">
-              {invoice.items?.map((item) => (
-                <div key={item.saleItemId}>
-                  <span>{item.productName}</span>
-                  <span>{formatQuantity(item.quantity)} x {formatCurrency(item.unitPrice, invoice.store?.currencyCode || DEFAULT_CURRENCY)}</span>
-                  <strong>{formatCurrency(item.lineTotal, invoice.store?.currencyCode || DEFAULT_CURRENCY)}</strong>
-                </div>
-              ))}
-            </div>
-            <div className="receipt-totals">
-              <div>
-                <span>Subtotal</span>
-                <strong>{formatCurrency(invoice.subtotalAmount, invoice.store?.currencyCode || DEFAULT_CURRENCY)}</strong>
-              </div>
-              <div>
-                <span>Discount</span>
-                <strong>{formatCurrency(invoice.discountAmount, invoice.store?.currencyCode || DEFAULT_CURRENCY)}</strong>
-              </div>
-              <div>
-                <span>Tax</span>
-                <strong>{formatCurrency(invoice.taxAmount, invoice.store?.currencyCode || DEFAULT_CURRENCY)}</strong>
-              </div>
-              <div>
-                <span>Total</span>
-                <strong>{formatCurrency(invoice.totalAmount, invoice.store?.currencyCode || DEFAULT_CURRENCY)}</strong>
-              </div>
-              <div>
-                <span>Paid</span>
-                <strong>{formatCurrency(invoice.paidAmount, invoice.store?.currencyCode || DEFAULT_CURRENCY)}</strong>
-              </div>
-              <div>
-                <span>Balance</span>
-                <strong>{formatCurrency(invoice.balanceAmount, invoice.store?.currencyCode || DEFAULT_CURRENCY)}</strong>
-              </div>
-            </div>
-            {invoice.store?.receiptFooter ? (
-              <p className="receipt-footer">{invoice.store.receiptFooter}</p>
-            ) : null}
-          </div>
+          <Receipt invoice={invoice} language={receiptLanguage} />
         ) : (
           <p className="muted">Completed sale receipt appears here.</p>
         )}

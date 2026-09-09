@@ -16,6 +16,26 @@ A grocery store point-of-sale system with a PostgreSQL database, Express backend
 
 Change these passwords before using the app outside local development.
 
+## Vercel Deployment
+
+Deploy this repository as one Vercel project with Root Directory set to the repository root and Framework Preset set to **Services**. The root `vercel.json` builds the Vite frontend and the Express backend separately, with `backend/src/server.js` as the backend entry point.
+
+Requests to `/api` and `/health` (including their subpaths) go to Express. Other requests go to the frontend, with an `index.html` fallback for React Router page refreshes.
+
+Set these environment variables in Vercel for the environments you deploy:
+
+- `DATABASE_URL`: your hosted PostgreSQL connection string. If keeping a Render database, use its **external** connection URL; its internal hostname cannot be reached from Vercel.
+- `DB_SSL=true`: when your database provider requires TLS.
+- `JWT_SECRET`: your production signing secret.
+- `VITE_API_BASE_URL=/api`: keeps browser API calls on the deployment's own domain. Remove any old Render URL or localhost override. Production builds also default to `/api` when this variable is unset.
+- `CLIENT_ORIGIN`: your public application origin, if setting an explicit CORS origin.
+
+Vercel does not run the Render `start:render` command. Keep the existing database when migrating, or initialize a new database using the PostgreSQL setup instructions below before using the app.
+
+Push the updated files to the connected GitHub branch to trigger a new deployment. After deployment, check `/api`, `/health`, and `/health/db`, then verify that refreshing `/login` works.
+
+Configuration reference: [Vercel Services](https://vercel.com/kb/guide/vercel-services).
+
 ## PostgreSQL Setup
 
 Create the database:
