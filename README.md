@@ -10,15 +10,9 @@ A grocery store point-of-sale system with a PostgreSQL database, Express backend
 - React Router
 - Axios
 
-## Sample Login Accounts
 
-These accounts are created by `database/seed.sql`.
 
-| Role | Username | Password |
-| --- | --- | --- |
-| Admin | `admin` | `AdminPass123!` |
-| Manager | `manager` | `ManagerPass123!` |
-| Cashier | `cashier` | `CashierPass123!` |
+
 
 Change these passwords before using the app outside local development.
 
