@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('./config/env');
 
 const fs = require('fs');
 const path = require('path');
@@ -104,17 +104,22 @@ app.use((error, req, res, next) => {
   });
 });
 
-const server = app.listen(PORT, () => {
-  console.log(`Grocery POS API listening on port ${PORT}`);
-});
+// Vercel imports the app; direct execution keeps local and Docker startup working.
+module.exports = app;
 
-const shutdown = async () => {
-  console.log('Shutting down Grocery POS API...');
-  server.close(async () => {
-    await pool.end();
-    process.exit(0);
+if (require.main === module) {
+  const server = app.listen(PORT, () => {
+    console.log(`Grocery POS API listening on port ${PORT}`);
   });
-};
 
-process.on('SIGINT', shutdown);
-process.on('SIGTERM', shutdown);
+  const shutdown = () => {
+    console.log('Shutting down Grocery POS API...');
+    server.close(async () => {
+      await pool.end();
+      process.exit(0);
+    });
+  };
+
+  process.on('SIGINT', shutdown);
+  process.on('SIGTERM', shutdown);
+}

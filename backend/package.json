@@ -7,6 +7,7 @@
     "node": ">=24.0.0 <25"
   },
   "scripts": {
+    "test": "node --test",
     "start": "node src/server.js",
     "start:render": "node scripts/initDatabase.js && node src/server.js",
     "dev": "node --watch src/server.js"
@@ -20,6 +21,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@vercel/functions": "^3.9.6",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
