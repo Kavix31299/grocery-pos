@@ -22,7 +22,7 @@ const dbPath = JSON.stringify(path.resolve(__dirname, '../src/config/db.js'));
 const serverPath = JSON.stringify(path.resolve(__dirname, '../src/server.js'));
 
 // Each diagnostic case runs with a replacement database module and an ephemeral
-// test verifier. Never read the private production-test token or load pg here.
+// test verifier. Driver-specific cases parse synthetic options offline; no client connects.
 const databaseDiagnosticFixture = async (serverFile, scenario) => {
   const assert = require('node:assert/strict');
   const fs = require('node:fs');
@@ -51,10 +51,43 @@ const databaseDiagnosticFixture = async (serverFile, scenario) => {
     current_schema: scenario === 'nulls' ? null : 'public',
     public_users: scenario === 'nulls' ? null : 'users',
     unqualified_users: scenario === 'nulls' ? null : 'users',
-    search_path: '"$user", public'
+    search_path: '"$user", public',
+    neon_endpoint_id: 'ep-test-example'
   };
   const calls = [];
+  const serverRequire = createRequire(serverFile);
+  const suffix = ['test-region', 'aws', 'neon', 'tech'].join('.');
+  const usesDriver = ['driver_url', 'driver_override'].includes(scenario);
+  let metadataCalls = 0;
+  let connectCalls = 0;
+  let configuredHost = 'ep-test-example-pooler.' + suffix;
+  const PgClient = usesDriver ? serverRequire('pg').Client : null;
+  if (PgClient) {
+    PgClient.prototype.connect = () => {
+      connectCalls += 1;
+      throw new Error('Diagnostic metadata must never connect');
+    };
+  }
+  const connectionString = 'postgresql://' + encodeURIComponent(token) + ':'
+    + encodeURIComponent(token) + '@ep-test-example.' + suffix + '/test'
+    + '?application_name=' + token
+    + (scenario === 'driver_override' ? '&host=ep-test-override-pooler.' + suffix : '');
+  if (scenario === 'driver_override') expected.neon_endpoint_id = 'ep-test-override';
   const pool = {
+    options: { connectionString, host: 'unused.invalid' },
+    Client: class {
+      constructor(options) {
+        metadataCalls += 1;
+        assert.equal(options, pool.options);
+        if (scenario === 'parser_error') throw new Error(connectionString);
+        this.connectionParameters = PgClient
+          ? new PgClient(options).connectionParameters : { host: configuredHost };
+      }
+      connect() {
+        connectCalls += 1;
+        throw new Error('Diagnostic metadata must never connect');
+      }
+    },
     query: async (...args) => {
       calls.push(args);
       if (scenario === 'error') {
@@ -62,10 +95,9 @@ const databaseDiagnosticFixture = async (serverFile, scenario) => {
         error.details = { password: token, hostname: token };
         throw error;
       }
-      return { rows: [{ ...expected, token, password: token, hostname: token, connectionString: token }] };
+      return { rows: [{ ...expected, neon_endpoint_id: token, token, password: token, hostname: token, connectionString }] };
     }
   };
-  const serverRequire = createRequire(serverFile);
   const dbFile = serverRequire.resolve('./config/db');
   require.cache[dbFile] = {
     id: dbFile, filename: dbFile, loaded: true,
@@ -91,6 +123,9 @@ const databaseDiagnosticFixture = async (serverFile, scenario) => {
     assert.equal(response.headers.get('cache-control'), 'no-store');
     const body = await response.text();
     assert.equal(body.includes(token), false);
+    assert.equal(body.includes(connectionString), false);
+    assert.equal(body.includes(suffix), false);
+    assert.equal(body.includes('application_name'), false);
     if (method === 'HEAD') {
       assert.equal(body, '');
     } else {
@@ -111,12 +146,50 @@ const databaseDiagnosticFixture = async (serverFile, scenario) => {
       for (const method of ['HEAD', 'POST', 'PUT', 'DELETE', 'OPTIONS']) {
         await request(token, 405, { error: 'method_not_allowed' }, method);
       }
+    } else if (scenario === 'hosts') {
+      const hostCases = [
+        ['ep-test-example.' + suffix, 'ep-test-example'],
+        ['ep-test-example-pooler.' + suffix, 'ep-test-example'],
+        [('ep-test-example-pooler.' + suffix).toUpperCase() + '.', 'ep-test-example'],
+        ['ep-test-pooler-name-pooler.' + suffix, 'ep-test-pooler-name'],
+        ['ep-test-pooler-pooler.' + suffix, 'ep-test-pooler'],
+        ['ep-test-example.' + suffix + '.invalid', null],
+        ['ep-test-example.notneon.tech', null],
+        ['ep-test-example.example.invalid', null],
+        ['ep-test-example..' + suffix, null],
+        ['ep-test-example.' + suffix + '..', null],
+        [' ep-test-example.' + suffix, null],
+        ['ep-test-example.-bad.neon.tech', null],
+        ['ep-test-example.bad_.neon.tech', null],
+        ['ep-test-example.bad-.neon.tech', null],
+        ['ep-' + 'a'.repeat(61) + '.' + suffix, null],
+        ['ep-test-example.' + ('a'.repeat(63) + '.').repeat(4) + 'neon.tech', null],
+        ['other-label.' + suffix, null],
+        ['ep--invalid.' + suffix, null],
+        ['ep-pooler.' + suffix, null],
+        ['neon.tech', null],
+        ['127.0.0.1', null],
+        ['::1', null],
+        ['/local/socket', null],
+        ['', null], [undefined, null], [null, null], [42, null]
+      ];
+      for (const [host, endpointId] of hostCases) {
+        configuredHost = host;
+        expected.neon_endpoint_id = endpointId;
+        await request(token, 200, expected);
+      }
+      assert.equal(calls.length, hostCases.length);
+    } else if (scenario === 'parser_error') {
+      await request(token, 503, { error: 'database_diagnostic_failed' });
+      assert.equal(calls.length, 0);
     } else {
       await request(token, scenario === 'error' ? 503 : 200,
         scenario === 'error' ? { error: 'database_diagnostic_failed' } : expected);
       assert.equal(calls.length, 1);
-      assert.equal(calls[0].length, 1);
-      assert.equal(calls[0][0].trim(), `SELECT
+    }
+    for (const call of calls) {
+      assert.equal(call.length, 1);
+      assert.equal(call[0].trim(), `SELECT
   pg_catalog.current_database()::text AS current_database,
   current_user::text AS current_user,
   pg_catalog.current_setting('search_path') AS search_path,
@@ -126,9 +199,13 @@ const databaseDiagnosticFixture = async (serverFile, scenario) => {
     }
     if (['unauthorized', 'expired', 'methods'].includes(scenario)) {
       assert.equal(calls.length, 0);
+      assert.equal(metadataCalls, 0);
+    } else {
+      assert.equal(metadataCalls, scenario === 'parser_error' ? 1 : calls.length);
     }
+    assert.equal(connectCalls, 0);
     assert.equal(logCount, 0);
-    assert.equal(Object.keys(require.cache).some(file => /[\\/]node_modules[\\/]pg[\\/]/.test(file)), false);
+    assert.equal(Object.keys(require.cache).some(file => /[\\/]node_modules[\\/]pg[\\/]/.test(file)), usesDriver);
   } finally {
     await new Promise(resolve => server.close(resolve));
   }
@@ -138,9 +215,13 @@ for (const [scenario, description] of [
   ['unauthorized', 'rejects missing, malformed and incorrect credentials without querying'],
   ['expired', 'rejects credentials at and after the fixed expiry without querying'],
   ['methods', 'rejects non-GET methods without querying'],
-  ['success', 'returns only the six approved fields using the fixed SELECT'],
+  ['success', 'returns only the six SQL fields and independently extracted endpoint ID'],
   ['nulls', 'preserves missing-relation and schema nulls'],
-  ['error', 'returns only the sanitized 503 and does not log database errors']
+  ['error', 'returns only the sanitized 503 and does not log database errors'],
+  ['hosts', 'normalizes endpoint IDs and rejects unsupported or malformed hosts'],
+  ['parser_error', 'sanitizes parser failures without querying or logging'],
+  ['driver_url', 'uses the installed driver and pool URL without connecting'],
+  ['driver_override', 'honors driver query-string host overrides without exposing parameters']
 ]) {
   test(`database diagnostic: ${description}; no-store and silent output`, () => {
     const env = Object.fromEntries(Object.entries(process.env).filter(([key]) =>

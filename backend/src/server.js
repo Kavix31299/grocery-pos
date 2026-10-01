@@ -39,6 +39,24 @@ SELECT
   pg_catalog.to_regclass('public.users')::text AS public_users;
 `;
 
+const diagnosticNeonEndpointId = () => {
+  // Parse exactly the pool's configuration without connecting or exposing other parameters.
+  const { host } = new pool.Client(pool.options).connectionParameters;
+  if (typeof host !== 'string') return null;
+
+  const hostname = host.toLowerCase().replace(/\.$/, '');
+  const labels = hostname.split('.');
+  const dnsLabel = /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/;
+  if (hostname.length > 253 || labels.length < 3
+      || labels.slice(-2).join('.') !== 'neon.tech'
+      || !labels.every(label => dnsLabel.test(label))) {
+    return null;
+  }
+
+  const endpointId = labels[0].replace(/-pooler$/, '');
+  return /^ep-[a-z0-9]+(?:-[a-z0-9]+)*$/.test(endpointId) ? endpointId : null;
+};
+
 // Handle this path before body parsing and authentication that reads application tables.
 app.all('/api/diagnostics/database-target', async (req, res) => {
   res.set('Cache-Control', 'no-store');
@@ -61,6 +79,7 @@ app.all('/api/diagnostics/database-target', async (req, res) => {
   }
 
   try {
+    const neonEndpointId = diagnosticNeonEndpointId();
     const { rows } = await pool.query(DATABASE_DIAGNOSTIC_SQL);
     const row = rows[0];
     return res.json({
@@ -69,7 +88,8 @@ app.all('/api/diagnostics/database-target', async (req, res) => {
       search_path: row.search_path,
       current_schema: row.current_schema,
       unqualified_users: row.unqualified_users,
-      public_users: row.public_users
+      public_users: row.public_users,
+      neon_endpoint_id: neonEndpointId
     });
   } catch {
     // Do not log or forward connection errors: their details may contain credentials.
