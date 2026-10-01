@@ -2,6 +2,7 @@ require('./config/env');
 
 const fs = require('fs');
 const path = require('path');
+const { createHash, timingSafeEqual } = require('node:crypto');
 const express = require('express');
 const cors = require('cors');
 const { pool } = require('./config/db');
@@ -23,6 +24,60 @@ const PORT = process.env.PORT || 5000;
 const clientOrigin = process.env.CLIENT_ORIGIN || process.env.RENDER_EXTERNAL_URL || '*';
 const frontendDistPath = path.resolve(__dirname, '../../frontend/dist');
 const frontendIndexPath = path.join(frontendDistPath, 'index.html');
+
+// TEMPORARY: remove after the production database target is verified.
+// Only the SHA-256 verifier is stored here; the private token stays outside the repository.
+const DATABASE_DIAGNOSTIC_TOKEN_SHA256 = '93d10e10909e29de29fe0ed687c16ccc29237880847d3068b8d9161cb67f97d1';
+const DATABASE_DIAGNOSTIC_EXPIRES_AT = Date.parse('2026-10-01T21:26:46.604Z');
+const DATABASE_DIAGNOSTIC_SQL = `
+SELECT
+  pg_catalog.current_database()::text AS current_database,
+  current_user::text AS current_user,
+  pg_catalog.current_schema()::text AS current_schema,
+  pg_catalog.current_schemas(true)::text[] AS current_schemas,
+  pg_catalog.to_regclass('public.users')::text AS public_users,
+  pg_catalog.to_regclass('users')::text AS users,
+  pg_catalog.current_setting('search_path') AS search_path;
+`;
+
+// Handle this path before body parsing and authentication that reads application tables.
+app.all('/api/diagnostics/database-target', async (req, res) => {
+  res.set('Cache-Control', 'no-store');
+
+  if (req.method !== 'GET') {
+    return res.set('Allow', 'GET').status(405).json({ error: 'method_not_allowed' });
+  }
+
+  const suppliedToken = req.get('X-Database-Diagnostic-Token');
+  if (Date.now() >= DATABASE_DIAGNOSTIC_EXPIRES_AT
+      || typeof suppliedToken !== 'string'
+      || !/^[a-f0-9]{64}$/.test(suppliedToken)) {
+    return res.status(401).json({ error: 'unauthorized' });
+  }
+
+  const suppliedDigest = createHash('sha256').update(suppliedToken).digest();
+  const expectedDigest = Buffer.from(DATABASE_DIAGNOSTIC_TOKEN_SHA256, 'hex');
+  if (!timingSafeEqual(suppliedDigest, expectedDigest)) {
+    return res.status(401).json({ error: 'unauthorized' });
+  }
+
+  try {
+    const { rows } = await pool.query(DATABASE_DIAGNOSTIC_SQL);
+    const row = rows[0];
+    return res.json({
+      current_database: row.current_database,
+      current_user: row.current_user,
+      current_schema: row.current_schema,
+      current_schemas: row.current_schemas,
+      public_users: row.public_users,
+      users: row.users,
+      search_path: row.search_path
+    });
+  } catch {
+    // Do not log or forward connection errors: their details may contain credentials.
+    return res.status(503).json({ error: 'database_diagnostic_failed' });
+  }
+});
 
 app.use(cors({
   origin: clientOrigin,
